@@ -1,35 +1,34 @@
 # Streamlit Configuration for Personal Comment Analyzer
-# This configuration optimizes the app for production deployment
+# Following Streamlit 2025 documentation: https://docs.streamlit.io/develop/api-reference/configuration/config.toml
 
 [theme]
+# Theme colors matching project design
 base = "dark"
-primaryColor = "#667eea"  # Matches our gradient design
+primaryColor = "#667eea"
 backgroundColor = "#0b1220"
 secondaryBackgroundColor = "#0f172a"
 textColor = "#e2e8f0"
 font = "sans serif"
 
 [server]
-# Production server settings
+# Server configuration
 headless = true
 port = 8501
 enableXsrfProtection = true
 maxUploadSize = 50
-
-# File watcher settings (for development)
 fileWatcherType = "auto"
 runOnSave = false
 
 [browser]
-# Browser settings for better UX
+# Browser settings
 gatherUsageStats = false
 serverAddress = "localhost"
 
 [global]
-# Global app settings
+# Global settings
 developmentMode = false
 suppressDeprecationWarnings = true
 
-[ui]
-# UI settings
-hideTopBar = false
+[logger]
+# Logging configuration
+level = "info"

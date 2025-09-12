@@ -14,12 +14,25 @@ from .prompt_templates import PromptTemplates
 
 logger = logging.getLogger(__name__)
 
+# Import configuration for dynamic settings
+try:
+    from config import BATCH_CONFIG, LLM_CONFIG
+    MAX_WORKERS = BATCH_CONFIG.get('max_concurrent_batches', 4)
+    DEFAULT_MODEL = LLM_CONFIG.get('model', 'gpt-4o-mini')
+    DEFAULT_MAX_TOKENS = LLM_CONFIG.get('max_tokens', 12000)
+    DEFAULT_TEMPERATURE = LLM_CONFIG.get('temperature', 0.3)
+except ImportError:
+    MAX_WORKERS = 4  # Fallback
+    DEFAULT_MODEL = 'gpt-4o-mini'  # Blueprint default
+    DEFAULT_MAX_TOKENS = 12000  # Blueprint default
+    DEFAULT_TEMPERATURE = 0.3
+
 class LLMApiClient:
     """OpenAI API client with parallel processing and fallback"""
     
-    def __init__(self, api_key: Optional[str] = None, model: str = "gpt-3.5-turbo"):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
         self.api_key = api_key
-        self.model = model
+        self.model = model or DEFAULT_MODEL  # Use configuration default
         self.client = OpenAI(api_key=api_key) if api_key else None
         self.prompt_templates = PromptTemplates()
         self.max_retries = 3
@@ -35,7 +48,7 @@ class LLMApiClient:
             return [self._get_mock_response(comment) for comment in comments]
         
         results = []
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             future_to_comment = {
                 executor.submit(self._analyze_single_comment, comment): comment
                 for comment in comments
@@ -64,8 +77,8 @@ class LLMApiClient:
                         {"role": "system", "content": self.prompt_templates.get_system_prompt()},
                         {"role": "user", "content": prompt}
                     ],
-                    temperature=0.3,
-                    max_tokens=500
+                    temperature=DEFAULT_TEMPERATURE,
+                    max_tokens=DEFAULT_MAX_TOKENS
                 )
                 
                 content = response.choices[0].message.content

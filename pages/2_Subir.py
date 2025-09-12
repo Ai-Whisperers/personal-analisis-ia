@@ -16,7 +16,7 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 # Import modules following new architecture
-from config import APP_INFO, FEATURE_FLAGS, get_openai_api_key
+from config import APP_INFO, FEATURE_FLAGS, get_openai_api_key, LLM_CONFIG
 from utils.streamlit_helpers import get_state_manager, show_error, create_metrics
 from utils.logging_helpers import get_logger
 from utils.performance_monitor import monitor
@@ -36,8 +36,8 @@ logger = get_logger(__name__)
 def main():
     """Main upload and analysis page"""
     
-    st.title("=Â Subir y Analizar Comentarios")
-    st.markdown("Sube tu archivo Excel y ejecuta el análisis de sentimientos")
+    st.title("=ï¿½ Subir y Analizar Comentarios")
+    st.markdown("Sube tu archivo Excel y ejecuta el anï¿½lisis de sentimientos")
     
     # Initialize state manager
     state_manager = get_state_manager()
@@ -68,36 +68,36 @@ def main():
 def show_current_status(state_manager):
     """Show current pipeline status"""
     
-    st.markdown("### =Ê Estado Actual")
+    st.markdown("### =ï¿½ Estado Actual")
     
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
         file_uploaded = state_manager.get_uploaded_file() is not None
         if file_uploaded:
-            st.metric("=Ä Archivo", " Cargado")
+            st.metric("=ï¿½ Archivo", " Cargado")
         else:
-            st.metric("=Ä Archivo", "ó Pendiente")
+            st.metric("=ï¿½ Archivo", "ï¿½ Pendiente")
     
     with col2:
         if state_manager.is_file_validated():
-            st.metric("= Validación", " OK")
+            st.metric("= Validaciï¿½n", " OK")
         else:
-            st.metric("= Validación", "ó Pendiente")
+            st.metric("= Validaciï¿½n", "ï¿½ Pendiente")
     
     with col3:
         if state_manager.is_pipeline_running():
-            st.metric("™ Procesando", "= En curso")
+            st.metric("ï¿½ Procesando", "= En curso")
         elif state_manager.is_analysis_complete():
-            st.metric("™ Procesando", " Completo")
+            st.metric("ï¿½ Procesando", " Completo")
         else:
-            st.metric("™ Procesando", "ó Listo")
+            st.metric("ï¿½ Procesando", "ï¿½ Listo")
     
     with col4:
         if state_manager.is_analysis_complete():
-            st.metric("=È Resultados", " Disponible")
+            st.metric("=ï¿½ Resultados", " Disponible")
         else:
-            st.metric("=È Resultados", "ó Pendiente")
+            st.metric("=ï¿½ Resultados", "ï¿½ Pendiente")
     
     # Show progress if pipeline is running
     if state_manager.is_pipeline_running():
@@ -105,12 +105,12 @@ def show_current_status(state_manager):
         if progress_data:
             st.progress(progress_data.get('overall_progress', 0) / 100)
             current_task = progress_data.get('current_task', 'Procesando...')
-            st.text(f"=Ë {current_task}")
+            st.text(f"=ï¿½ {current_task}")
 
 def render_analysis_section(state_manager, uploaded_file_info: Dict[str, Any]):
     """Render analysis controls and execution"""
     
-    st.subheader("<¯ Ejecutar Análisis")
+    st.subheader("<ï¿½ Ejecutar Anï¿½lisis")
     
     # Check prerequisites
     can_run_analysis = (
@@ -120,35 +120,35 @@ def render_analysis_section(state_manager, uploaded_file_info: Dict[str, Any]):
     
     if not can_run_analysis:
         if not uploaded_file_info.get('validated', False):
-            st.warning("  Archivo no válido. Por favor, sube un archivo con las columnas requeridas.")
+            st.warning("ï¿½ Archivo no vï¿½lido. Por favor, sube un archivo con las columnas requeridas.")
         elif state_manager.is_pipeline_running():
-            st.info("ó Análisis en progreso...")
+            st.info("ï¿½ Anï¿½lisis en progreso...")
         return
     
     # Analysis options
-    st.markdown("### ™ Opciones de Análisis")
+    st.markdown("### ï¿½ Opciones de Anï¿½lisis")
     
     opt_col1, opt_col2 = st.columns(2)
     
     with opt_col1:
         use_mock = st.checkbox(
-            ">ê Usar modo demo (sin API)", 
+            ">ï¿½ Usar modo demo (sin API)", 
             value=not bool(get_openai_api_key()),
             help="Utiliza respuestas simuladas para pruebas"
         )
     
     with opt_col2:
         show_progress = st.checkbox(
-            "=Ê Mostrar progreso detallado", 
+            "=ï¿½ Mostrar progreso detallado", 
             value=FEATURE_FLAGS.get('enable_batch_progress', True),
-            help="Muestra el progreso de cada etapa del análisis"
+            help="Muestra el progreso de cada etapa del anï¿½lisis"
         )
     
     # Run analysis button
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        if st.button("=€ **Iniciar Análisis**", use_container_width=True, type="primary"):
+        if st.button("=ï¿½ **Iniciar Anï¿½lisis**", use_container_width=True, type="primary"):
             run_analysis(state_manager, uploaded_file_info, use_mock, show_progress)
 
 def run_analysis(
@@ -168,16 +168,17 @@ def run_analysis(
         progress_placeholder = st.empty()
         status_placeholder = st.empty()
         
-        # Initialize engine controller
+        # Initialize engine controller with blueprint configuration
         api_key = None if use_mock else get_openai_api_key()
-        api_client = LLMApiClient(api_key=api_key)
+        model = LLM_CONFIG.get('model', 'gpt-4o-mini')
+        api_client = LLMApiClient(api_key=api_key, model=model)
         controller = EngineController(api_client)
         
         temp_file_path = uploaded_file_info['temp_path']
         
         # Execute pipeline with progress tracking
         with status_placeholder.container():
-            st.info("=€ Iniciando análisis...")
+            st.info("=ï¿½ Iniciando anï¿½lisis...")
         
         if show_progress:
             with progress_placeholder.container():
@@ -186,12 +187,12 @@ def run_analysis(
                 
                 # Mock progress updates (in real implementation, this would come from the pipeline)
                 stages = [
-                    "=Ä Cargando archivo...",
-                    ">ù Limpiando datos...",
+                    "=ï¿½ Cargando archivo...",
+                    ">ï¿½ Limpiando datos...",
                     " Validando estructura...",
                     "> Procesando con IA...",
-                    "<­ Analizando emociones...", 
-                    "=Ê Generando métricas...",
+                    "<ï¿½ Analizando emociones...", 
+                    "=ï¿½ Generando mï¿½tricas...",
                     "( Finalizando..."
                 ]
                 
@@ -223,20 +224,20 @@ def run_analysis(
         
         # Show success message
         with status_placeholder.container():
-            st.success(f" **¡Análisis completado!** Procesado en {duration:.1f} segundos")
+            st.success(f" **ï¿½Anï¿½lisis completado!** Procesado en {duration:.1f} segundos")
             
             # Show basic stats
             stats_col1, stats_col2, stats_col3 = st.columns(3)
             
             with stats_col1:
-                st.metric("=Ê Comentarios", len(results_df))
+                st.metric("=ï¿½ Comentarios", len(results_df))
             
             with stats_col2:
                 emotion_cols = [col for col in results_df.columns if col.startswith('emo_')]
-                st.metric("<­ Emociones", len(emotion_cols))
+                st.metric("<ï¿½ Emociones", len(emotion_cols))
             
             with stats_col3:
-                st.metric("ñ Tiempo", f"{duration:.1f}s")
+                st.metric("ï¿½ Tiempo", f"{duration:.1f}s")
         
         # Cleanup temp file
         cleanup_temp_file(uploaded_file_info.get('temp_path'))
@@ -257,7 +258,7 @@ def run_analysis(
         # Show error
         progress_placeholder.empty()
         with status_placeholder.container():
-            show_error("Error en el análisis", error_msg)
+            show_error("Error en el anï¿½lisis", error_msg)
         
         # Cleanup temp file
         cleanup_temp_file(uploaded_file_info.get('temp_path'))
@@ -265,7 +266,7 @@ def run_analysis(
 def render_results_section(state_manager):
     """Render analysis results and charts"""
     
-    st.subheader("=È Resultados del Análisis")
+    st.subheader("=ï¿½ Resultados del Anï¿½lisis")
     
     results_df = state_manager.get_pipeline_results()
     
@@ -274,12 +275,12 @@ def render_results_section(state_manager):
         return
     
     # Results overview
-    st.markdown("### =Ê Resumen General")
+    st.markdown("### =ï¿½ Resumen General")
     
     overview_col1, overview_col2, overview_col3, overview_col4 = st.columns(4)
     
     with overview_col1:
-        st.metric("=Ý Total Comentarios", len(results_df))
+        st.metric("=ï¿½ Total Comentarios", len(results_df))
     
     with overview_col2:
         if 'nps_category' in results_df.columns:
@@ -289,7 +290,7 @@ def render_results_section(state_manager):
     with overview_col3:
         if 'churn_risk' in results_df.columns:
             high_risk = (results_df['churn_risk'] > 0.7).sum()
-            st.metric("  Alto Riesgo", high_risk)
+            st.metric("ï¿½ Alto Riesgo", high_risk)
     
     with overview_col4:
         emotion_cols = [col for col in results_df.columns if col.startswith('emo_')]
@@ -297,7 +298,7 @@ def render_results_section(state_manager):
             # Find most common emotion
             emotion_means = results_df[emotion_cols].mean()
             top_emotion = emotion_means.idxmax().replace('emo_', '')
-            st.metric("<­ Emoción Top", top_emotion.capitalize())
+            st.metric("<ï¿½ Emociï¿½n Top", top_emotion.capitalize())
     
     # Charts section
     st.markdown("---")

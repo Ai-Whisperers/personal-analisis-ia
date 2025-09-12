@@ -16,6 +16,13 @@ from ..file_processor import reader, cleaner, validator, normalizer
 
 logger = logging.getLogger(__name__)
 
+# Import configuration - this will be dynamic based on secrets
+try:
+    from config import BATCH_CONFIG
+    MAX_WORKERS = BATCH_CONFIG.get('max_concurrent_batches', 4)
+except ImportError:
+    MAX_WORKERS = 4  # Fallback
+
 class EngineController:
     """Main orchestrator for the analysis pipeline"""
     
@@ -25,7 +32,7 @@ class EngineController:
         self.pain_analyzer = PainPointsAnalyzer()
         self.churn_analyzer = ChurnAnalyzer()
         self.nps_analyzer = NPSAnalyzer()
-        self.batch_size = 100
+        self.batch_size = BATCH_CONFIG.get('batch_size', 100)  # Use configuration
     
     def run_pipeline(self, file_path: str) -> pd.DataFrame:
         """Main pipeline execution"""
@@ -63,7 +70,7 @@ class EngineController:
         """Process all batches in parallel using ThreadPoolExecutor"""
         results = []
         
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
             future_to_batch = {
                 executor.submit(self._process_single_batch, batch): batch 
                 for batch in batches
