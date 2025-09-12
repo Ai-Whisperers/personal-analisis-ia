@@ -61,9 +61,9 @@ def get_secret(key: str, default: str = "") -> str:
 def get_llm_config() -> Dict[str, Any]:
     """Get LLM configuration from secrets with defaults"""
     return {
-        "model": get_secret("MODEL_NAME", "gpt-3.5-turbo"),
+        "model": get_secret("MODEL_NAME", "gpt-4o-mini"),
         "temperature": 0.3,
-        "max_tokens": int(get_secret("MAX_TOKENS_PER_CALL", "500")),
+        "max_tokens": int(get_secret("MAX_TOKENS_PER_CALL", "12000")),
         "timeout": 30
     }
 
@@ -84,7 +84,7 @@ def get_batch_config() -> Dict[str, Any]:
     """Get batch configuration from secrets with defaults"""
     return {
         "batch_size": int(get_secret("MAX_BATCH_SIZE", "100")),
-        "max_concurrent_batches": int(get_secret("MAX_WORKERS", "4")),
+        "max_concurrent_batches": int(get_secret("MAX_WORKERS", "12")),
         "retry_attempts": 3,
         "retry_delay": 1
     }
