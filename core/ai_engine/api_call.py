@@ -12,6 +12,7 @@ from typing import List, Dict, Optional, Any
 from dataclasses import dataclass
 from .prompt_templates import build_analysis_prompt, JSON_RESPONSE_TEMPLATE
 from config import MODEL_NAME, MAX_TOKENS_PER_CALL, MAX_BATCH_SIZE, EMOTIONS_16
+from utils.performance_monitor import monitor_performance
 
 # Configurar logging
 logging.basicConfig(level=logging.INFO)
@@ -243,6 +244,7 @@ def _analyze_single_batch(comments: List[str], lang: str = "es") -> List[Dict]:
         logger.error(f"Error in single batch analysis: {e}, falling back to mock")
         return _mock_response_for_batch(comments)
 
+@monitor_performance("analyze_batch_via_llm")
 def analyze_batch_via_llm(comments: List[str], lang: str = "es", max_workers: int = MAX_WORKERS) -> List[Dict]:
     """
     Analiza lote de comentarios usando OpenAI con concurrencia paralela.
