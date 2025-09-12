@@ -164,11 +164,14 @@ class PipelineController(IPipelineRunner):
                 tmp_file.write(uploaded_file.getvalue())
                 tmp_path = tmp_file.name
             
-            # Use core file processor for validation
-            from core.file_processor.validator import FileValidator
-            validator = FileValidator()
+            # Use existing file validation from reader module
+            from core.file_processor.reader import validate_file
             
-            validation_result = validator.validate_file_structure(tmp_path)
+            is_valid = validate_file(tmp_path)
+            validation_result = {
+                'is_valid': is_valid,
+                'message': 'File structure validated' if is_valid else 'Invalid file structure or format'
+            }
             
             if validation_result['is_valid']:
                 file_info = {
