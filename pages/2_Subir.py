@@ -81,9 +81,9 @@ def show_current_status(state_manager):
     
     with col2:
         if state_manager.is_file_validated():
-            st.metric("= Validaci�n", " OK")
+            st.metric("=✓ Validación", "✓ OK")
         else:
-            st.metric("= Validaci�n", "� Pendiente")
+            st.metric("=✓ Validación", "⏳ Pendiente")
     
     with col3:
         if state_manager.is_pipeline_running():
@@ -312,7 +312,7 @@ def render_results_section(state_manager):
     render_export_section(results_df, analysis_summary)
     
     # Raw data preview
-    with st.expander("= Ver datos procesados (preview)", expanded=False):
+    with st.expander("📊 Ver datos procesados (preview)", expanded=False):
         st.dataframe(results_df.head(10), use_container_width=True)
         st.info(f"Mostrando 10 de {len(results_df)} filas totales")
 

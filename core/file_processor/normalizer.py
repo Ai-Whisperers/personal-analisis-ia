@@ -163,7 +163,7 @@ class DataNormalizer:
         """Standardize punctuation marks"""
         # Standardize quotation marks
         text = re.sub(r'[""„"]', '"', text)
-        text = re.sub(r'[''‚']', "'", text)
+        text = re.sub(r"[''‚']", "'", text)
         
         # Standardize dashes
         text = re.sub(r'[—–]', '-', text)
