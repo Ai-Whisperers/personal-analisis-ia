@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 NPS Charts - Net Promoter Score visualizations
 Charts for promoter/passive/detractor analysis

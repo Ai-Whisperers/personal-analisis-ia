@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Data Normalizer - Handles text normalization and standardization
 """

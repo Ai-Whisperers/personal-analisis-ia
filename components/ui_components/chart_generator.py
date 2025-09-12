@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Chart Generator - Refactored to use modular chart components
 Main interface for rendering all analysis charts

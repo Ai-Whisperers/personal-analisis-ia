@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Emotion Charts - Specialized charts for 16 emotions analysis
 Shows % of each emotion individually (not categories)

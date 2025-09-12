@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Churn Risk Analysis Module - Predicts customer abandonment probability
 """

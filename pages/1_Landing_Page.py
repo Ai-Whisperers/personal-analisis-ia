@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Landing Page - Welcome and navigation page
 Pure UI - no business logic
@@ -17,7 +18,7 @@ def main():
     """Landing page main function"""
     
     # Page header
-    st.title("  Bienvenido al Personal Comment Analyzer")
+    st.title("ï¿½ Bienvenido al Personal Comment Analyzer")
     st.markdown("### Tu herramienta de analisis de sentimientos basada en IA")
     
     # Hero section

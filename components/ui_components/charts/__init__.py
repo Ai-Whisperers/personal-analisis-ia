@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Charts Package - Modular chart components
 Divided to avoid god files and improve maintainability

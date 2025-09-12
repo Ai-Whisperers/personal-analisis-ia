@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Performance Monitor - Decorator and tools for measuring performance
 Ensures SLA compliance (≤10s P50 for 800-1200 rows)

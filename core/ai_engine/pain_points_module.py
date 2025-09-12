@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Pain Points Analysis Module - Identifies customer issues and problems
 """

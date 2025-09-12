@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Background Pipeline Runner - Handles threading and async execution
 Prevents UI blocking during heavy processing operations

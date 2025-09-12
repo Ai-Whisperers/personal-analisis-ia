@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Streamlit Helpers - Wrappers and utilities for Streamlit UI components
 """

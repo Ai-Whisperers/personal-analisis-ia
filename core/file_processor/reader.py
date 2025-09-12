@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Excel File Reader - Handles Excel file parsing and initial data loading
 """

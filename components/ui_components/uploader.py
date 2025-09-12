@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 File Uploader Component - Handles Excel file uploads with validation
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Progress Tracker - UI-agnostic progress tracking and timing
 """

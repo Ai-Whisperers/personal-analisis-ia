@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Base Chart Renderer - Common functionality for all charts
 Provides color palettes and base methods

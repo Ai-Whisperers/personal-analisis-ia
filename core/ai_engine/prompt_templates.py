@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Prompt Templates for LLM analysis
 Contains system and user prompts for emotion and analysis tasks

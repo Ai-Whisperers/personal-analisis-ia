@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Pipeline Controller - Main orchestration point
 Uses core/ modules without duplicating logic, provides UI isolation

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 State Interface - UI-agnostic state management interface
 Provides abstraction between core logic and UI state management

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Data Cleaner - Handles DataFrame cleaning and preprocessing
 """

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 LLM API Client - Parallel calls with ThreadPoolExecutor
 Handles retries, JSON parsing, and mock fallback
@@ -30,10 +31,11 @@ except ImportError:
 class LLMApiClient:
     """OpenAI API client with parallel processing and fallback"""
     
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None, mock_mode: bool = False):
         self.api_key = api_key
         self.model = model or DEFAULT_MODEL  # Use configuration default
-        self.client = OpenAI(api_key=api_key) if api_key else None
+        self.mock_mode = mock_mode
+        self.client = OpenAI(api_key=api_key) if api_key and not mock_mode else None
         self.prompt_templates = PromptTemplates()
         self.max_retries = 3
         self.retry_delay = 1
@@ -43,8 +45,8 @@ class LLMApiClient:
         if not comments:
             return []
         
-        if not self.client or not self.api_key:
-            logger.warning("No API key provided, using mock responses")
+        if not self.client or not self.api_key or self.mock_mode:
+            logger.warning("No API key provided or mock mode enabled, using mock responses")
             return [self._get_mock_response(comment) for comment in comments]
         
         results = []

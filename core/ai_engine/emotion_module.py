@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Emotion Analysis Module - Handles 16 emotion classification system
 """

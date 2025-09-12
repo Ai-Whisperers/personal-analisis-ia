@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Churn Risk Charts - Customer churn risk visualizations
 Charts for analyzing probability of customer abandonment

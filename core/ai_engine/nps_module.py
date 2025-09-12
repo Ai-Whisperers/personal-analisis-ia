@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 NPS Analysis Module - Handles Net Promoter Score categorization and analysis
 """

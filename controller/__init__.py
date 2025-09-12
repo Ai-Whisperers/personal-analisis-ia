@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Controller Package - Pipeline Orchestration Layer
 Isolates UI from core logic following blueprint architecture

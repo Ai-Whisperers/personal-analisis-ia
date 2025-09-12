@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Configuration file for Personal Comment Analyzer
 Contains all constants, settings, and configuration parameters
@@ -56,6 +57,10 @@ def get_secret(key: str, default: str = "") -> str:
         return st.secrets.get(key, os.environ.get(key, default))
     except Exception:
         return os.environ.get(key, default)
+
+def is_mock_mode() -> bool:
+    """Check if mock mode is enabled (when no API key is available)"""
+    return not bool(get_openai_api_key())
 
 # LLM Model Configuration (with secrets support)
 def get_llm_config() -> Dict[str, Any]:
@@ -169,15 +174,15 @@ CHURN_THRESHOLDS = {
 # High-risk keywords for churn analysis
 CHURN_KEYWORDS = {
     "high_risk": [
-        "cancelar", "cerrar cuenta", "dar de baja", "nunca m�s", "no vuelvo",
-        "p�simo servicio", "horrible", "terrible", "odio", "detesto",
+        "cancelar", "cerrar cuenta", "dar de baja", "nunca más", "no vuelvo",
+        "pésimo servicio", "horrible", "terrible", "odio", "detesto",
         "cambiar de proveedor", "buscar alternativa", "competencia",
-        "no recomiendo", "perdieron cliente", "�ltima vez"
+        "no recomiendo", "perdieron cliente", "última vez"
     ],
     "medium_risk": [
         "decepcionado", "frustrado", "molesto", "insatisfecho",
         "problema", "queja", "reclamo", "mal servicio",
-        "no cumple", "esperaba m�s", "no vale la pena"
+        "no cumple", "esperaba más", "no vale la pena"
     ]
 }
 
@@ -236,7 +241,7 @@ VALIDATION_CONFIG = {
 APP_INFO = {
     "name": "Personal Comment Analyzer",
     "version": "2.0.0",
-    "description": "Sistema de an�lisis de sentimientos de comentarios usando IA",
+    "description": "Sistema de análisis de sentimientos de comentarios usando IA",
     "author": "AI Whisperers",
     "repository": "https://github.com/Ai-Whisperers/personal-analisis-ia"
 }

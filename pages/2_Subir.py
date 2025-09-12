@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Upload and Analysis Page - Refactored using Controller Pattern
 Clean UI layer that delegates all logic to controller/

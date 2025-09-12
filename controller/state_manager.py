@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Streamlit State Manager - Handles session state without UI dependencies
 Implements IStateManager interface for clean separation

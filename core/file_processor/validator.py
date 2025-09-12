@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Data Validator - Validates DataFrame structure and content quality
 """

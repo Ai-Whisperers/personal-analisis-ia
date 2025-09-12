@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Interface definitions for controller layer
 Provides clear contracts between UI and core logic

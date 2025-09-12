@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Report Exporter Component - Exports analysis results to various formats
 """
@@ -23,7 +24,7 @@ class ReportExporter:
     
     def render_export_section(self, df: pd.DataFrame, analysis_summary: Optional[Dict[str, Any]] = None) -> None:
         """Render export options and buttons"""
-        st.subheader("¥ Exportar Resultados")
+        st.subheader("Exportar Resultados")
         st.write("Descarga los resultados del anlisis en diferentes formatos")
         
         if df.empty:

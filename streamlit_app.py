@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 Personal Comment Analyzer - Streamlit App Entry Point
 Minimal router following blueprint <150 lines requirement

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 AI Engine Controller - Orchestrates the entire pipeline
 parse → batch → LLM → merge
