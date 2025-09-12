@@ -149,12 +149,12 @@ def main():
             - **Churn Risk**: 0.85 (Alto)
             - **Pain Points**: servicio lento, soporte deficiente
             
-            **Recomendacin**: Contacto prioritario para retencin
+            **Recomendación**: Contacto prioritario para retención
             """)
     
     # System status
     st.markdown("---")
-    st.markdown("##  Estado del Sistema")
+    st.markdown("## ⚡ Estado del Sistema")
     
     state_manager = get_state_manager()
     
@@ -165,62 +165,62 @@ def main():
         api_key = get_openai_api_key()
         
         if api_key:
-            st.success("= **API**: Configurada y lista")
+            st.success("🔑 **API**: Configurada y lista")
         else:
             if FEATURE_FLAGS.get('enable_mock_mode', True):
-                st.info("=5 **API**: Modo demo disponible")
+                st.info("🎮 **API**: Modo demo disponible")
             else:
-                st.error("=4 **API**: Configuracin requerida")
+                st.error("⚠️ **API**: Configuración requerida")
     
     with status_col2:
         uploaded_file = state_manager.get_uploaded_file()
         if uploaded_file:
-            st.success("= **Archivo**: Listo para analizar")
+            st.success("📂 **Archivo**: Listo para analizar")
         else:
-            st.info("=5 **Archivo**: Esperando subida")
+            st.info("📤 **Archivo**: Esperando subida")
     
     with status_col3:
         if state_manager.is_analysis_complete():
-            st.success("= **Anlisis**: Resultados disponibles")
+            st.success("✅ **Análisis**: Resultados disponibles")
         elif state_manager.is_pipeline_running():
-            st.warning("= **Anlisis**: Procesando...")
+            st.warning("🔄 **Análisis**: Procesando...")
         else:
-            st.info("=5 **Anlisis**: Listo para iniciar")
+            st.info("🚀 **Análisis**: Listo para iniciar")
     
     # Action buttons
     st.markdown("---")
-    st.markdown("## = Comienza Ahora!")
+    st.markdown("## 🚀 ¡Comienza Ahora!")
     
     action_col1, action_col2, action_col3 = st.columns([1, 1, 1])
     
     with action_col1:
-        if st.button("= **Subir Archivo y Analizar**", use_container_width=True, type="primary"):
+        if st.button("📤 **Subir Archivo y Analizar**", use_container_width=True, type="primary"):
             st.switch_page("pages/2_Subir.py")
     
     with action_col2:
         if uploaded_file and not state_manager.is_pipeline_running():
-            if st.button("< **Iniciar Anlisis**", use_container_width=True):
+            if st.button("🔍 **Iniciar Análisis**", use_container_width=True):
                 st.switch_page("pages/2_Subir.py")
         else:
-            st.button("< **Iniciar Anlisis**", use_container_width=True, disabled=True)
+            st.button("🔍 **Iniciar Análisis**", use_container_width=True, disabled=True)
     
     with action_col3:
         if state_manager.is_analysis_complete():
-            if st.button("= **Ver Resultados**", use_container_width=True):
+            if st.button("📊 **Ver Resultados**", use_container_width=True):
                 st.switch_page("pages/2_Subir.py")
         else:
-            st.button("= **Ver Resultados**", use_container_width=True, disabled=True)
+            st.button("📊 **Ver Resultados**", use_container_width=True, disabled=True)
     
     # Tips section
     st.markdown("---")
-    st.markdown("## = Consejos para mejores resultados")
+    st.markdown("## 💡 Consejos para mejores resultados")
     
     tip_col1, tip_col2 = st.columns(2)
     
     with tip_col1:
         st.markdown("""
-        ### = **Preparacin del archivo**
-        - Asegrate de que las columnas tengan los nombres exactos
+        ### 📋 **Preparación del archivo**
+        - Asegúrate de que las columnas tengan los nombres exactos
         - Limpia comentarios muy cortos (menos de 5 caracteres)  
         - Verifica que los valores NPS estn entre 0-10
         - Formato recomendado: Excel (.xlsx)
@@ -228,19 +228,19 @@ def main():
     
     with tip_col2:
         st.markdown("""
-        ###  **Optimizacin de rendimiento**
+        ### ⚡ **Optimización de rendimiento**
         - Archivos de hasta 50MB son procesados eficientemente
         - Lotes de 100 comentarios se procesan en paralelo
         - Tiempo esperado: ~8-10 segundos para 1000 comentarios
-        - Los resultados se guardan automticamente
+        - Los resultados se guardan automáticamente
         """)
     
     # Footer
     st.markdown("---")
     st.markdown(f"""
     <div style='text-align: center; color: #666; font-size: 0.8em; padding: 20px;'>
-        < {APP_INFO['name']} v{APP_INFO['version']} | 
-        Desarrollado con d por {APP_INFO['author']} | 
+        💎 {APP_INFO['name']} v{APP_INFO['version']} | 
+        Desarrollado con ❤️ por {APP_INFO['author']} | 
         <a href='{APP_INFO['repository']}' target='_blank'>Ver en GitHub</a>
     </div>
     """, unsafe_allow_html=True)
