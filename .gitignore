@@ -58,9 +58,9 @@ venv.bak/
 ehthumbs.db
 Thumbs.db
 
-# Streamlit secrets
+# Streamlit secrets - CRITICAL: Never commit real secrets
 .streamlit/secrets.toml
-.streamlit/
+# Note: Keep .streamlit/config.toml in version control, but not secrets.toml
 streamlit_cache/
 
 # Jupyter Notebook

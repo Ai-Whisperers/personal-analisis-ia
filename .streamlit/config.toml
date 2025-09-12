@@ -1,9 +1,35 @@
+# Streamlit Configuration for Personal Comment Analyzer
+# This configuration optimizes the app for production deployment
+
 [theme]
-base="dark"
-primaryColor="#7dd3fc"
-backgroundColor="#0b1220"
-secondaryBackgroundColor="#0f172a"
-textColor="#e2e8f0"
+base = "dark"
+primaryColor = "#667eea"  # Matches our gradient design
+backgroundColor = "#0b1220"
+secondaryBackgroundColor = "#0f172a"
+textColor = "#e2e8f0"
+font = "sans serif"
 
 [server]
+# Production server settings
 headless = true
+port = 8501
+enableXsrfProtection = true
+maxUploadSize = 50
+
+# File watcher settings (for development)
+fileWatcherType = "auto"
+runOnSave = false
+
+[browser]
+# Browser settings for better UX
+gatherUsageStats = false
+serverAddress = "localhost"
+
+[global]
+# Global app settings
+developmentMode = false
+suppressDeprecationWarnings = true
+
+[ui]
+# UI settings
+hideTopBar = false

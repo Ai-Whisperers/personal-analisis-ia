@@ -38,16 +38,37 @@ EMO_CATEGORIES = {
 
 # OpenAI API Configuration (from Streamlit secrets)
 def get_openai_api_key() -> str:
-    """Get OpenAI API key from secrets or environment"""
+    """Get OpenAI API key from Streamlit secrets or environment variables"""
     try:
-        # Try Streamlit secrets first
+        # Try Streamlit secrets first (recommended for Streamlit Cloud)
+        if hasattr(st, 'secrets') and "OPENAI_API_KEY" in st.secrets:
+            return st.secrets["OPENAI_API_KEY"]
         return st.secrets.get("OPENAI_API_KEY", "")
-    except:
-        # Fallback to environment variable
+    except Exception:
+        # Fallback to environment variable for local development
         return os.environ.get("OPENAI_API_KEY", "")
 
-# LLM Model Configuration
-LLM_CONFIG = {
+def get_secret(key: str, default: str = "") -> str:
+    """Get secret from Streamlit secrets with fallback to environment"""
+    try:
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
+        return st.secrets.get(key, os.environ.get(key, default))
+    except Exception:
+        return os.environ.get(key, default)
+
+# LLM Model Configuration (with secrets support)
+def get_llm_config() -> Dict[str, Any]:
+    """Get LLM configuration from secrets with defaults"""
+    return {
+        "model": get_secret("MODEL_NAME", "gpt-3.5-turbo"),
+        "temperature": 0.3,
+        "max_tokens": int(get_secret("MAX_TOKENS_PER_CALL", "500")),
+        "timeout": 30
+    }
+
+# Dynamic LLM config
+LLM_CONFIG = get_llm_config() if 'st' in globals() else {
     "model": "gpt-3.5-turbo",
     "temperature": 0.3,
     "max_tokens": 500,
@@ -58,12 +79,22 @@ LLM_CONFIG = {
 # PROCESSING CONFIGURATION
 # ============================================================================
 
-# Batch processing settings for optimal performance
-BATCH_CONFIG = {
-    "batch_size": 100,          # Comments per batch for LLM processing
-    "max_concurrent_batches": 4, # Parallel batches
+# Batch processing settings for optimal performance (with secrets support)
+def get_batch_config() -> Dict[str, Any]:
+    """Get batch configuration from secrets with defaults"""
+    return {
+        "batch_size": int(get_secret("MAX_BATCH_SIZE", "100")),
+        "max_concurrent_batches": int(get_secret("MAX_WORKERS", "4")),
+        "retry_attempts": 3,
+        "retry_delay": 1
+    }
+
+# Dynamic batch config
+BATCH_CONFIG = get_batch_config() if 'st' in globals() else {
+    "batch_size": 100,
+    "max_concurrent_batches": 4,
     "retry_attempts": 3,
-    "retry_delay": 1            # Seconds between retries
+    "retry_delay": 1
 }
 
 # File processing limits
@@ -224,17 +255,12 @@ FEATURE_FLAGS = {
 # HELPER FUNCTIONS
 # ============================================================================
 
-def get_secret(key: str, default: str = "") -> str:
-    """Get secret from Streamlit secrets or environment"""
-    try:
-        return st.secrets.get(key, os.environ.get(key, default))
-    except:
-        return os.environ.get(key, default)
-
 def is_mock_mode() -> bool:
-    """Check if running in mock mode (no API key)"""
+    """Check if running in mock mode (no API key or mock key)"""
     api_key = get_openai_api_key()
-    return not api_key or api_key.startswith("mock") or not FEATURE_FLAGS["enable_mock_mode"]
+    return (not api_key or 
+            api_key in ["", "your_openai_api_key_here", "mock", "test"] or 
+            not FEATURE_FLAGS.get("enable_mock_mode", True))
 
 def get_app_config() -> Dict[str, Any]:
     """Get complete application configuration"""

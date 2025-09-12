@@ -1,120 +1,175 @@
 """
-Personal Comment Analyzer - Streamlit Application Entry Point
-Punto de entrada principal de la aplicación con configuración y navegación.
+Personal Comment Analyzer - Streamlit App Entry Point
+Production-ready Streamlit application following 2025 best practices
 """
-
 import streamlit as st
+import sys
+import os
+from pathlib import Path
 
-# Page configuration
+# Configure Streamlit page FIRST (must be the first Streamlit command)
 st.set_page_config(
     page_title="Personal Comment Analyzer",
-    page_icon="🧭",
+    page_icon="🎭",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
-        'About': "Personal Comment Analyzer - Sistema de análisis de sentimientos con IA"
+        'Get Help': 'https://github.com/Ai-Whisperers/personal-analisis-ia',
+        'Report a bug': "https://github.com/Ai-Whisperers/personal-analisis-ia/issues",
+        'About': "# Personal Comment Analyzer\nAnálisis de sentimientos con IA usando 16 emociones específicas."
     }
 )
 
-# Load glassmorphism styles
-st.markdown('<link rel="stylesheet" href="static/css/glassmorphism_styles.css">', unsafe_allow_html=True)
+# Add project root to Python path
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-# Custom CSS for better Streamlit styling
-st.markdown('''
-<style>
-/* Hide Streamlit branding */
-#MainMenu {visibility: hidden;}
-footer {visibility: hidden;}
-header {visibility: hidden;}
+# Import configuration and utilities AFTER st.set_page_config
+from config import APP_INFO, FEATURE_FLAGS, validate_config, get_secret
+from utils.logging_helpers import setup_logging, get_logger
+from utils.streamlit_helpers import get_state_manager
 
-/* Custom sidebar styling */
-.css-1d391kg {
-    background: rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(10px);
-}
+# Initialize logging with secrets support
+log_level = get_secret("LOG_LEVEL", "INFO")
+setup_logging(level=log_level, log_to_console=True, log_to_file=True)
+logger = get_logger(__name__)
 
-/* Main content area */
-.stApp > div:first-child {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    min-height: 100vh;
-}
-
-/* Sidebar navigation styling */
-.css-17eq0hr {
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 10px;
-    padding: 1rem;
-    margin: 0.5rem 0;
-    backdrop-filter: blur(5px);
-}
-</style>
-''', unsafe_allow_html=True)
-
-# Welcome message
-st.markdown('''
-<div class="glass-card fade-in">
-    <div class="title">🧭 Personal Comment Analyzer</div>
-    <div class="subtitle">Bienvenido al sistema de análisis de sentimientos con IA</div>
-    <div class="subtle">
-        Utiliza la barra lateral para navegar entre las diferentes funcionalidades
+def main():
+    """Main application entry point"""
+    
+    # Validate configuration
+    if not validate_config():
+        st.error("❌ Configuration validation failed. Please check the logs.")
+        st.stop()
+    
+    # Initialize state manager
+    state_manager = get_state_manager()
+    
+    # Application header
+    st.title(f"🎭 {APP_INFO['name']}")
+    st.markdown(f"*{APP_INFO['description']}*")
+    st.markdown(f"**Versión:** {APP_INFO['version']}")
+    
+    # Show debug info if enabled
+    if FEATURE_FLAGS.get('enable_debug_mode', False):
+        with st.expander("🔧 Debug Information"):
+            st.json({
+                "app_info": APP_INFO,
+                "feature_flags": FEATURE_FLAGS,
+                "state_summary": state_manager.get_state_summary()
+            })
+    
+    # Navigation instructions
+    st.markdown("---")
+    st.markdown("""
+    ## 📋 Cómo usar la aplicación:
+    
+    1. **📂 Página Principal**: Ve a la página **1_Landing_Page** para comenzar
+    2. **⬆️ Subir Archivo**: Usa la página **2_Subir** para subir tu Excel y ejecutar el análisis
+    3. **📊 Resultados**: Los resultados aparecerán automáticamente después del análisis
+    
+    ### 📄 Formato de archivo requerido:
+    Tu archivo Excel debe contener las siguientes columnas:
+    - **NPS**: Puntuación NPS (0-10)
+    - **Nota**: Calificación del cliente
+    - **Comentario Final**: Texto del comentario a analizar
+    """)
+    
+    # Quick access buttons
+    st.markdown("---")
+    st.markdown("### 🚀 Acceso Rápido:")
+    
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("📂 Ir a Landing Page", use_container_width=True):
+            st.switch_page("pages/1_Landing_Page.py")
+    
+    with col2:
+        if st.button("⬆️ Subir y Analizar", use_container_width=True):
+            st.switch_page("pages/2_Subir.py")
+    
+    with col3:
+        if st.button("📊 Ver Documentación", use_container_width=True):
+            with st.expander("📚 Documentación del Sistema", expanded=True):
+                st.markdown("""
+                ### 🎭 Sistema de 16 Emociones
+                
+                El sistema analiza cada comentario para detectar 16 emociones específicas:
+                
+                **Emociones Positivas (7):**
+                - alegría, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
+                
+                **Emociones Negativas (7):**
+                - tristeza, enojo, miedo, desagrado, frustración, decepción, vergüenza
+                
+                **Emociones Neutras (2):**
+                - sorpresa, indiferencia
+                
+                ### 📈 Análisis Incluido
+                
+                - **Distribución de emociones**: % de cada emoción en todos los comentarios
+                - **Análisis NPS**: Categorización en Promotores, Pasivos, Detractores
+                - **Riesgo de Churn**: Probabilidad de abandono del cliente
+                - **Pain Points**: Identificación de problemas específicos
+                - **Exportación**: Resultados en Excel, CSV o JSON
+                
+                ### ⚡ Rendimiento
+                
+                - **Procesamiento paralelo**: Análisis optimizado por lotes
+                - **SLA Target**: ≤10 segundos para 800-1200 comentarios
+                - **Modo Mock**: Funciona sin API key para pruebas
+                """)
+    
+    # System status
+    st.markdown("---")
+    st.markdown("### 🔍 Estado del Sistema:")
+    
+    # Check system readiness
+    status_col1, status_col2, status_col3 = st.columns(3)
+    
+    with status_col1:
+        # API key status
+        from config import get_openai_api_key, is_mock_mode
+        api_key = get_openai_api_key()
+        
+        if api_key:
+            st.success("🔑 API Key: Configurada")
+        else:
+            if FEATURE_FLAGS.get('enable_mock_mode', True):
+                st.info("🔑 API Key: Modo Mock Activo")
+            else:
+                st.error("🔑 API Key: No Configurada")
+    
+    with status_col2:
+        # File upload status
+        uploaded_file = state_manager.get_uploaded_file()
+        if uploaded_file:
+            st.success("📄 Archivo: Cargado")
+        else:
+            st.info("📄 Archivo: Pendiente")
+    
+    with status_col3:
+        # Analysis status
+        if state_manager.is_analysis_complete():
+            st.success("🎯 Análisis: Completado")
+        elif state_manager.is_pipeline_running():
+            st.warning("🎯 Análisis: En Proceso")
+        else:
+            st.info("🎯 Análisis: Pendiente")
+    
+    # Footer
+    st.markdown("---")
+    st.markdown(f"""
+    <div style='text-align: center; color: #666; font-size: 0.9em;'>
+        {APP_INFO['name']} v{APP_INFO['version']} | 
+        <a href='{APP_INFO['repository']}' target='_blank'>GitHub Repository</a> | 
+        Desarrollado por {APP_INFO['author']}
     </div>
-</div>
-''', unsafe_allow_html=True)
+    """, unsafe_allow_html=True)
+    
+    # Log application start
+    logger.info(f"Application started - {APP_INFO['name']} v{APP_INFO['version']}")
 
-# Navigation guide
-st.markdown('''
-<div class="glass container">
-    <div class="title">📍 Navegación</div>
-    <div class="grid-2">
-        <div class="glass-metric">
-            <div class="metric-value">🏠</div>
-            <div class="metric-label">Landing Page</div>
-            <div class="subtle">Información general y características del sistema</div>
-        </div>
-        <div class="glass-metric glass-success">
-            <div class="metric-value">📈</div>
-            <div class="metric-label">Subir y Analizar</div>
-            <div class="subtle">Cargar archivos Excel y ejecutar análisis con IA</div>
-        </div>
-    </div>
-</div>
-''', unsafe_allow_html=True)
-
-# Quick start guide
-st.markdown('''
-<div class="glass-card glass-warning">
-    <div class="title">🚀 Inicio Rápido</div>
-    <ol class="subtle">
-        <li><strong>Preparar datos:</strong> Excel con columnas NPS | Nota | Comentario Final</li>
-        <li><strong>Navegar:</strong> Ir a página "Subir" en la barra lateral</li>
-        <li><strong>Cargar:</strong> Subir archivo Excel (.xlsx)</li>
-        <li><strong>Analizar:</strong> Ejecutar análisis automático con IA</li>
-        <li><strong>Visualizar:</strong> Explorar dashboards y descargar reportes</li>
-    </ol>
-</div>
-''', unsafe_allow_html=True)
-
-# System status
-st.markdown('''
-<div class="glass container">
-    <div class="title">⚡ Estado del Sistema</div>
-    <div class="grid-4">
-        <div class="glass-metric glass-success">
-            <div class="metric-value">✅</div>
-            <div class="metric-label">Core Engine</div>
-        </div>
-        <div class="glass-metric glass-success">
-            <div class="metric-value">✅</div>
-            <div class="metric-label">Data Pipeline</div>
-        </div>
-        <div class="glass-metric glass-success">
-            <div class="metric-value">✅</div>
-            <div class="metric-label">Glassmorphism UI</div>
-        </div>
-        <div class="glass-metric glass-warning">
-            <div class="metric-value">🔄</div>
-            <div class="metric-label">Mock/API Ready</div>
-        </div>
-    </div>
-</div>
-''', unsafe_allow_html=True)
+if __name__ == "__main__":
+    main()
