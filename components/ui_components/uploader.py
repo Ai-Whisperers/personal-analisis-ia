@@ -19,7 +19,7 @@ class FileUploader:
     def render(self, key: str = "file_uploader") -> Optional[Dict[str, Any]]:
         """Render file upload component and return file info if uploaded"""
         
-        st.subheader("📂 Subir Archivo Excel")
+        st.subheader("[FOLDER] Subir Archivo Excel")
         st.write("Sube tu archivo Excel con las columnas: **NPS**, **Nota**, **Comentario Final**")
         
         uploaded_file = st.file_uploader(
@@ -34,11 +34,11 @@ class FileUploader:
         
         # Display file info
         file_size_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
-        st.info(f"📄 **{uploaded_file.name}** ({file_size_mb:.1f} MB)")
+        st.info(f"[DOCUMENT] **{uploaded_file.name}** ({file_size_mb:.1f} MB)")
         
         # Check file size
         if file_size_mb > self.max_file_size_mb:
-            st.error(f"❌ Archivo demasiado grande. Máximo: {self.max_file_size_mb} MB")
+            st.error(f"[ERROR] Archivo demasiado grande. Máximo: {self.max_file_size_mb} MB")
             return None
         
         # Process file
@@ -51,7 +51,7 @@ class FileUploader:
                 file_info = reader.reader.get_file_info(temp_path)
                 
                 if 'error' in file_info:
-                    st.error(f"❌ Error al leer el archivo: {file_info['error']}")
+                    st.error(f"[ERROR] Error al leer el archivo: {file_info['error']}")
                     self._cleanup_temp_file(temp_path)
                     return None
                 
@@ -60,7 +60,7 @@ class FileUploader:
                 
                 # Validate columns
                 if not file_info['has_required_columns']:
-                    st.error("❌ **Columnas faltantes:**")
+                    st.error("[ERROR] **Columnas faltantes:**")
                     for col in file_info['missing_columns']:
                         st.write(f"   • {col}")
                     st.write("**Columnas disponibles:**")
@@ -83,7 +83,7 @@ class FileUploader:
                 }
                 
             except Exception as e:
-                st.error(f"❌ Error procesando archivo: {str(e)}")
+                st.error(f"[ERROR] Error procesando archivo: {str(e)}")
                 return None
     
     def _save_temp_file(self, uploaded_file) -> str:
@@ -107,13 +107,13 @@ class FileUploader:
         col1, col2 = st.columns(2)
         
         with col1:
-            st.metric("📊 Filas", file_info['rows'])
-            st.metric("📋 Columnas", file_info['columns'])
+            st.metric("[DATA] Filas", file_info['rows'])
+            st.metric("[CHECKLIST] Columnas", file_info['columns'])
         
         with col2:
-            st.metric("💾 Tamaño", f"{file_info['size_mb']} MB")
-            status = "✅ Válido" if file_info['has_required_columns'] else "❌ Inválido"
-            st.metric("🔍 Estado", status)
+            st.metric("[STORAGE] Tamaño", f"{file_info['size_mb']} MB")
+            status = "[VALID] Válido" if file_info['has_required_columns'] else "[ERROR] Inválido"
+            st.metric("[SEARCH] Estado", status)
     
     def _show_preview(self, temp_path: str):
         """Show data preview"""

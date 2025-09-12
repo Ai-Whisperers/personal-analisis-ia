@@ -54,20 +54,20 @@ class ReportExporter:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            include_emotions = st.checkbox("🎭 Datos de emociones", value=True)
+            include_emotions = st.checkbox("[EMOTIONS] Datos de emociones", value=True)
         
         with col2:
-            include_analysis = st.checkbox("📊 Análisis completo", value=True)
+            include_analysis = st.checkbox("[DATA] Análisis completo", value=True)
         
         with col3:
-            include_raw = st.checkbox("📄 Datos originales", value=False)
+            include_raw = st.checkbox("[DOCUMENT] Datos originales", value=False)
         
         # Generate filename
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         filename = f"analisis_comentarios_{timestamp}"
         
         # Export button
-        if st.button("⬇️ Exportar Resultados", key="export_button"):
+        if st.button("[DOWNLOAD] Exportar Resultados", key="export_button"):
             try:
                 with st.spinner("Generando reporte..."):
                     export_data = self._prepare_export_data(
@@ -86,13 +86,13 @@ class ReportExporter:
                     elif export_format == 'json':
                         file_path = self._export_to_json(export_data, filename)
                     
-                    st.success(f"✅ Reporte exportado: {file_path.name}")
+                    st.success(f"[VALID] Reporte exportado: {file_path.name}")
                     
                     # Provide download link
                     self._create_download_link(file_path, export_format)
                     
             except Exception as e:
-                st.error(f"❌ Error al exportar: {str(e)}")
+                st.error(f"[ERROR] Error al exportar: {str(e)}")
         
         # Show export preview
         if st.checkbox("Ver vista previa de exportación", key="preview_export"):
@@ -256,7 +256,7 @@ class ReportExporter:
             }
             
             st.download_button(
-                label=f"💾 Descargar {file_path.name}",
+                label=f"[STORAGE] Descargar {file_path.name}",
                 data=file_data,
                 file_name=file_path.name,
                 mime=mime_types.get(export_format, 'application/octet-stream'),
@@ -274,14 +274,14 @@ class ReportExporter:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("📊 Total Filas", len(df))
+            st.metric("[DATA] Total Filas", len(df))
         
         with col2:
-            st.metric("📋 Total Columnas", len(df.columns))
+            st.metric("[CHECKLIST] Total Columnas", len(df.columns))
         
         with col3:
             emotion_cols = [col for col in df.columns if col.startswith('emo_')]
-            st.metric("🎭 Columnas Emociones", len(emotion_cols))
+            st.metric("[EMOTIONS] Columnas Emociones", len(emotion_cols))
         
         # Show sample data
         st.write("**Muestra de datos (primeras 3 filas):**")

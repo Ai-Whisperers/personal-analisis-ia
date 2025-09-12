@@ -26,7 +26,7 @@ class ChartGenerator:
     
     def render_emotion_distribution_chart(self, df: pd.DataFrame, chart_type: str = "bar") -> None:
         """Render emotion distribution chart showing % of each of the 16 emotions"""
-        st.subheader("📊 Distribución de Emociones")
+        st.subheader("[DATA] Distribución de Emociones")
         st.write("Porcentaje de cada emoción detectada en todos los comentarios")
         
         # Get emotion columns
@@ -180,7 +180,7 @@ class ChartGenerator:
     
     def _render_emotion_summary(self, emotion_data: Dict[str, float]) -> None:
         """Render emotion summary statistics"""
-        st.subheader("📈 Resumen de Emociones")
+        st.subheader("[CHART] Resumen de Emociones")
         
         # Calculate category percentages
         category_percentages = {}
@@ -193,34 +193,34 @@ class ChartGenerator:
         
         with col1:
             st.metric(
-                "😊 Emociones Positivas", 
+                "[POSITIVE] Emociones Positivas", 
                 f"{category_percentages['positivas']:.1f}%",
                 help="Promedio de: " + ", ".join(EMO_CATEGORIES['positivas'])
             )
         
         with col2:
             st.metric(
-                "😔 Emociones Negativas", 
+                "[NEGATIVE] Emociones Negativas", 
                 f"{category_percentages['negativas']:.1f}%",
                 help="Promedio de: " + ", ".join(EMO_CATEGORIES['negativas'])
             )
         
         with col3:
             st.metric(
-                "😐 Emociones Neutras", 
+                "[NEUTRAL] Emociones Neutras", 
                 f"{category_percentages['neutras']:.1f}%",
                 help="Promedio de: " + ", ".join(EMO_CATEGORIES['neutras'])
             )
         
         # Top emotions
         top_3_emotions = list(emotion_data.items())[:3]
-        st.write("**🏆 Top 3 Emociones:**")
+        st.write("**[TOP] Top 3 Emociones:**")
         for i, (emotion, percentage) in enumerate(top_3_emotions, 1):
             st.write(f"{i}. **{emotion.capitalize()}**: {percentage:.1f}%")
     
     def render_nps_distribution_chart(self, df: pd.DataFrame) -> None:
         """Render NPS distribution chart"""
-        st.subheader("📊 Distribución NPS")
+        st.subheader("[DATA] Distribución NPS")
         
         if 'nps_category' not in df.columns:
             st.warning("No se encontraron datos de categorías NPS")
@@ -268,23 +268,23 @@ class ChartGenerator:
             # Display NPS score with interpretation
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("🎯 Puntuación NPS", f"{nps_score:.1f}")
+                st.metric("[TARGET] Puntuación NPS", f"{nps_score:.1f}")
             
             with col2:
                 if nps_score >= 50:
-                    interpretation = "🌟 Excelente"
+                    interpretation = "[EXCELLENT] Excelente"
                 elif nps_score >= 0:
-                    interpretation = "👍 Bueno"
+                    interpretation = "[GOOD] Bueno"
                 elif nps_score >= -50:
-                    interpretation = "⚠️ Mejorar"
+                    interpretation = "[WARNING] Mejorar"
                 else:
-                    interpretation = "🚨 Crítico"
+                    interpretation = "[CRITICAL] Crítico"
                 
-                st.metric("📈 Interpretación", interpretation)
+                st.metric("[CHART] Interpretación", interpretation)
     
     def render_churn_risk_chart(self, df: pd.DataFrame) -> None:
         """Render churn risk distribution"""
-        st.subheader("⚠️ Distribución de Riesgo de Churn")
+        st.subheader("[WARNING] Distribución de Riesgo de Churn")
         
         if 'churn_risk' not in df.columns:
             st.warning("No se encontraron datos de riesgo de churn")
@@ -332,15 +332,15 @@ class ChartGenerator:
         col1, col2, col3 = st.columns(3)
         
         with col1:
-            st.metric("📊 Riesgo Promedio", f"{churn_risks.mean():.2f}")
+            st.metric("[DATA] Riesgo Promedio", f"{churn_risks.mean():.2f}")
         
         with col2:
             high_risk_pct = (risk_counts.get('Alto', 0) / len(churn_risks) * 100)
-            st.metric("🚨 Alto Riesgo", f"{high_risk_pct:.1f}%")
+            st.metric("[CRITICAL] Alto Riesgo", f"{high_risk_pct:.1f}%")
         
         with col3:
             low_risk_pct = (risk_counts.get('Bajo', 0) / len(churn_risks) * 100)
-            st.metric("✅ Bajo Riesgo", f"{low_risk_pct:.1f}%")
+            st.metric("[VALID] Bajo Riesgo", f"{low_risk_pct:.1f}%")
 
 def render_emotion_charts(df: pd.DataFrame, chart_type: str = "bar") -> None:
     """Convenience function to render emotion charts"""
@@ -352,7 +352,7 @@ def render_analysis_charts(df: pd.DataFrame) -> None:
     generator = ChartGenerator()
     
     # Emotion charts
-    st.header("🎭 Análisis de Emociones")
+    st.header("[EMOTIONS] Análisis de Emociones")
     
     chart_type = st.selectbox(
         "Tipo de gráfico para emociones:",

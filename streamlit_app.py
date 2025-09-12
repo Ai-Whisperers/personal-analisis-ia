@@ -10,7 +10,7 @@ from pathlib import Path
 # Configure Streamlit page FIRST (must be the first Streamlit command)
 st.set_page_config(
     page_title="Personal Comment Analyzer",
-    page_icon="🎭",
+    page_icon="[EMOTIONS]",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -39,20 +39,20 @@ def main():
     
     # Validate configuration
     if not validate_config():
-        st.error("❌ Configuration validation failed. Please check the logs.")
+        st.error("[ERROR] Configuration validation failed. Please check the logs.")
         st.stop()
     
     # Initialize state manager
     state_manager = get_state_manager()
     
     # Application header
-    st.title(f"🎭 {APP_INFO['name']}")
+    st.title(f"[EMOTIONS] {APP_INFO['name']}")
     st.markdown(f"*{APP_INFO['description']}*")
     st.markdown(f"**Versión:** {APP_INFO['version']}")
     
     # Show debug info if enabled
     if FEATURE_FLAGS.get('enable_debug_mode', False):
-        with st.expander("🔧 Debug Information"):
+        with st.expander("[CONFIG] Debug Information"):
             st.json({
                 "app_info": APP_INFO,
                 "feature_flags": FEATURE_FLAGS,
@@ -62,13 +62,13 @@ def main():
     # Navigation instructions
     st.markdown("---")
     st.markdown("""
-    ## 📋 Cómo usar la aplicación:
+    ## [CHECKLIST] Cómo usar la aplicación:
     
-    1. **📂 Página Principal**: Ve a la página **1_Landing_Page** para comenzar
-    2. **⬆️ Subir Archivo**: Usa la página **2_Subir** para subir tu Excel y ejecutar el análisis
-    3. **📊 Resultados**: Los resultados aparecerán automáticamente después del análisis
+    1. **[FOLDER] Página Principal**: Ve a la página **1_Landing_Page** para comenzar
+    2. **[UPLOAD] Subir Archivo**: Usa la página **2_Subir** para subir tu Excel y ejecutar el análisis
+    3. **[DATA] Resultados**: Los resultados aparecerán automáticamente después del análisis
     
-    ### 📄 Formato de archivo requerido:
+    ### [DOCUMENT] Formato de archivo requerido:
     Tu archivo Excel debe contener las siguientes columnas:
     - **NPS**: Puntuación NPS (0-10)
     - **Nota**: Calificación del cliente
@@ -77,23 +77,23 @@ def main():
     
     # Quick access buttons
     st.markdown("---")
-    st.markdown("### 🚀 Acceso Rápido:")
+    st.markdown("### [LAUNCH] Acceso Rápido:")
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("📂 Ir a Landing Page", use_container_width=True):
+        if st.button("[FOLDER] Ir a Landing Page", use_container_width=True):
             st.switch_page("pages/1_Landing_Page.py")
     
     with col2:
-        if st.button("⬆️ Subir y Analizar", use_container_width=True):
+        if st.button("[UPLOAD] Subir y Analizar", use_container_width=True):
             st.switch_page("pages/2_Subir.py")
     
     with col3:
-        if st.button("📊 Ver Documentación", use_container_width=True):
-            with st.expander("📚 Documentación del Sistema", expanded=True):
+        if st.button("[DATA] Ver Documentación", use_container_width=True):
+            with st.expander("[DOCS] Documentación del Sistema", expanded=True):
                 st.markdown("""
-                ### 🎭 Sistema de 16 Emociones
+                ### [EMOTIONS] Sistema de 16 Emociones
                 
                 El sistema analiza cada comentario para detectar 16 emociones específicas:
                 
@@ -106,7 +106,7 @@ def main():
                 **Emociones Neutras (2):**
                 - sorpresa, indiferencia
                 
-                ### 📈 Análisis Incluido
+                ### [CHART] Análisis Incluido
                 
                 - **Distribución de emociones**: % de cada emoción en todos los comentarios
                 - **Análisis NPS**: Categorización en Promotores, Pasivos, Detractores
@@ -114,7 +114,7 @@ def main():
                 - **Pain Points**: Identificación de problemas específicos
                 - **Exportación**: Resultados en Excel, CSV o JSON
                 
-                ### ⚡ Rendimiento
+                ### [PERFORMANCE] Rendimiento
                 
                 - **Procesamiento paralelo**: Análisis optimizado por lotes
                 - **SLA Target**: ≤10 segundos para 800-1200 comentarios
@@ -123,7 +123,7 @@ def main():
     
     # System status
     st.markdown("---")
-    st.markdown("### 🔍 Estado del Sistema:")
+    st.markdown("### [SEARCH] Estado del Sistema:")
     
     # Check system readiness
     status_col1, status_col2, status_col3 = st.columns(3)
@@ -134,29 +134,29 @@ def main():
         api_key = get_openai_api_key()
         
         if api_key:
-            st.success("🔑 API Key: Configurada")
+            st.success("[KEY] API Key: Configurada")
         else:
             if FEATURE_FLAGS.get('enable_mock_mode', True):
-                st.info("🔑 API Key: Modo Mock Activo")
+                st.info("[KEY] API Key: Modo Mock Activo")
             else:
-                st.error("🔑 API Key: No Configurada")
+                st.error("[KEY] API Key: No Configurada")
     
     with status_col2:
         # File upload status
         uploaded_file = state_manager.get_uploaded_file()
         if uploaded_file:
-            st.success("📄 Archivo: Cargado")
+            st.success("[DOCUMENT] Archivo: Cargado")
         else:
-            st.info("📄 Archivo: Pendiente")
+            st.info("[DOCUMENT] Archivo: Pendiente")
     
     with status_col3:
         # Analysis status
         if state_manager.is_analysis_complete():
-            st.success("🎯 Análisis: Completado")
+            st.success("[TARGET] Análisis: Completado")
         elif state_manager.is_pipeline_running():
-            st.warning("🎯 Análisis: En Proceso")
+            st.warning("[TARGET] Análisis: En Proceso")
         else:
-            st.info("🎯 Análisis: Pendiente")
+            st.info("[TARGET] Análisis: Pendiente")
     
     # Footer
     st.markdown("---")

@@ -58,7 +58,7 @@ class DataValidator:
                 f"Available columns: {available_cols}"
             )
         
-        logger.info("✓ All required columns present")
+        logger.info("[OK] All required columns present")
     
     def _validate_size(self, df: pd.DataFrame):
         """Validate DataFrame size is within acceptable limits"""
@@ -68,7 +68,7 @@ class DataValidator:
         if len(df) > self.max_rows:
             raise ValueError(f"DataFrame too large: {len(df)} rows. Maximum: {self.max_rows}")
         
-        logger.info(f"✓ DataFrame size acceptable: {len(df)} rows")
+        logger.info(f"[OK] DataFrame size acceptable: {len(df)} rows")
     
     def _validate_data_quality(self, df: pd.DataFrame) -> Dict[str, List[str]]:
         """Validate data quality and return report"""

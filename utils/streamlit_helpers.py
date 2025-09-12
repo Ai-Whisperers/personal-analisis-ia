@@ -120,7 +120,7 @@ class StreamlitHelpers:
         
         # Current task info
         current_task = progress_data.get('current_task', 'Procesando...')
-        st.text(f"📋 {current_task}")
+        st.text(f"[CHECKLIST] {current_task}")
         
         # Task breakdown
         tasks = progress_data.get('tasks', {})
@@ -131,12 +131,12 @@ class StreamlitHelpers:
                     message = task_info.get('message', '')
                     
                     status_icon = {
-                        'pending': '⏳',
-                        'running': '🔄',
-                        'completed': '✅',
-                        'failed': '❌',
-                        'cancelled': '⭕'
-                    }.get(status, '❓')
+                        'pending': '[PENDING]',
+                        'running': '[PROCESSING]',
+                        'completed': '[VALID]',
+                        'failed': '[ERROR]',
+                        'cancelled': '[CANCELLED]'
+                    }.get(status, '[UNKNOWN]')
                     
                     st.text(f"{status_icon} {task_name}: {message}")
     
@@ -166,7 +166,7 @@ class StreamlitHelpers:
         show_trace: bool = False
     ) -> None:
         """Show error message with optional details"""
-        st.error(f"❌ {error_message}")
+        st.error(f"[ERROR] {error_message}")
         
         if details:
             with st.expander("Ver detalles del error"):
@@ -186,13 +186,13 @@ class StreamlitHelpers:
         """Create styled info box"""
         
         icons = {
-            'info': 'ℹ️',
-            'warning': '⚠️',
-            'success': '✅',
-            'error': '❌'
+            'info': '[INFO]',
+            'warning': '[WARNING]',
+            'success': '[VALID]',
+            'error': '[ERROR]'
         }
         
-        display_icon = icon or icons.get(box_type, 'ℹ️')
+        display_icon = icon or icons.get(box_type, '[INFO]')
         
         if box_type == "info":
             st.info(f"{display_icon} **{title}**\n\n{content}")
