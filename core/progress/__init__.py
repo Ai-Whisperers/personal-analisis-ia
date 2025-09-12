@@ -1,0 +1,1 @@
+# Progress tracking module - UI agnostic state management

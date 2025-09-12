@@ -1,1 +1,98 @@
-/* per-chart overrides */
+/* Pie Chart Styles for Personal Comment Analyzer */
+
+.chart-container {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 1.5rem;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+    margin-bottom: 1rem;
+}
+
+.chart-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2d3748;
+    text-align: center;
+    margin-bottom: 1rem;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.pie-chart-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 400px;
+}
+
+/* Legend styling */
+.chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.legend-color {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.legend-text {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #4a5568;
+}
+
+/* Emotion color scheme */
+.emotion-positive {
+    background: linear-gradient(135deg, #48bb78, #38a169);
+}
+
+.emotion-negative {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+}
+
+.emotion-neutral {
+    background: linear-gradient(135deg, #4299e1, #3182ce);
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .chart-container {
+        padding: 1rem;
+    }
+    
+    .chart-title {
+        font-size: 1.2rem;
+    }
+    
+    .pie-chart-wrapper {
+        min-height: 300px;
+    }
+    
+    .chart-legend {
+        gap: 0.5rem;
+    }
+    
+    .legend-item {
+        padding: 0.3rem 0.8rem;
+    }
+}
