@@ -1,22 +1,21 @@
 """
 Personal Comment Analyzer - Streamlit App Entry Point
-Production-ready Streamlit application following 2025 best practices
+Minimal router following blueprint <150 lines requirement
 """
 import streamlit as st
 import sys
-import os
 from pathlib import Path
 
-# Configure Streamlit page FIRST (must be the first Streamlit command)
+# Configure Streamlit page FIRST
 st.set_page_config(
     page_title="Personal Comment Analyzer",
-    page_icon="[EMOTIONS]",
+    page_icon="📊",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://github.com/Ai-Whisperers/personal-analisis-ia',
         'Report a bug': "https://github.com/Ai-Whisperers/personal-analisis-ia/issues",
-        'About': "# Personal Comment Analyzer\nAnlisis de sentimientos con IA usando 16 emociones especficas."
+        'About': "# Personal Comment Analyzer\nAnálisis de sentimientos con IA usando 16 emociones específicas."
     }
 )
 
@@ -24,141 +23,121 @@ st.set_page_config(
 project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
-# Import configuration and utilities AFTER st.set_page_config
+# Import configuration and utilities
 from config import APP_INFO, FEATURE_FLAGS, validate_config, get_secret
 from utils.logging_helpers import setup_logging, get_logger
-from utils.streamlit_helpers import get_state_manager
 
-# Initialize logging with secrets support
+# Initialize logging
 log_level = get_secret("LOG_LEVEL", "INFO")
 setup_logging(level=log_level, log_to_console=True, log_to_file=True)
 logger = get_logger(__name__)
 
 def main():
-    """Main application entry point"""
+    """Main application entry point - minimal router"""
     
     # Validate configuration
     if not validate_config():
-        st.error("[ERROR] Configuration validation failed. Please check the logs.")
+        st.error("⚠️ Configuration validation failed. Please check the logs.")
         st.stop()
     
-    # Initialize state manager
-    state_manager = get_state_manager()
-    
     # Application header
-    st.title(f"[EMOTIONS] {APP_INFO['name']}")
+    render_app_header()
+    
+    # Navigation section
+    render_navigation_section()
+    
+    # System status
+    render_system_status()
+    
+    # Footer
+    render_footer()
+    
+    logger.info(f"Application started - {APP_INFO['name']} v{APP_INFO['version']}")
+
+def render_app_header():
+    """Render application header"""
+    st.title(f"📊 {APP_INFO['name']}")
     st.markdown(f"*{APP_INFO['description']}*")
-    st.markdown(f"**Versin:** {APP_INFO['version']}")
-    
-    # Show debug info if enabled
-    if FEATURE_FLAGS.get('enable_debug_mode', False):
-        with st.expander("[CONFIG] Debug Information"):
-            st.json({
-                "app_info": APP_INFO,
-                "feature_flags": FEATURE_FLAGS,
-                "state_summary": state_manager.get_state_summary()
-            })
-    
-    # Navigation instructions
+    st.markdown(f"**Versión:** {APP_INFO['version']}")
+
+def render_navigation_section():
+    """Render navigation instructions and quick access"""
     st.markdown("---")
+    st.markdown("## 📋 Cómo usar la aplicación:")
     st.markdown("""
-    ## [CHECKLIST] Cmo usar la aplicacin:
+    1. **📂 Landing Page**: Ve a **1_Landing_Page** para información del sistema
+    2. **📤 Subir Archivo**: Usa **2_Subir** para cargar Excel y ejecutar análisis  
+    3. **📊 Resultados**: Los gráficos aparecen automáticamente después del análisis
     
-    1. **[FOLDER] Pgina Principal**: Ve a la pgina **1_Landing_Page** para comenzar
-    2. **[UPLOAD] Subir Archivo**: Usa la pgina **2_Subir** para subir tu Excel y ejecutar el anlisis
-    3. **[DATA] Resultados**: Los resultados aparecern automticamente despus del anlisis
-    
-    ### [DOCUMENT] Formato de archivo requerido:
-    Tu archivo Excel debe contener las siguientes columnas:
-    - **NPS**: Puntuacin NPS (0-10)
-    - **Nota**: Calificacin del cliente
-    - **Comentario Final**: Texto del comentario a analizar
+    **📋 Formato requerido:** Excel con columnas `NPS`, `Nota`, `Comentario Final`
     """)
     
     # Quick access buttons
+    st.markdown("### 🚀 Acceso Rápido:")
+    col1, col2, col3 = st.columns(3)
+    
+    with col1:
+        if st.button("📂 Landing Page", use_container_width=True):
+            st.switch_page("pages/1_Landing_Page.py")
+    
+    with col2:
+        if st.button("📤 Subir y Analizar", use_container_width=True, type="primary"):
+            st.switch_page("pages/2_Subir.py")
+    
+    with col3:
+        if st.button("📋 Documentación", use_container_width=True):
+            show_documentation_modal()
+
+def show_documentation_modal():
+    """Show documentation in expandable section"""
+    with st.expander("📚 Documentación", expanded=True):
+        st.markdown("""
+        ### 🎭 16 Emociones
+        **Positivas:** alegría, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
+        **Negativas:** tristeza, enojo, miedo, desagrado, frustración, decepción, vergüenza  
+        **Neutras:** sorpresa, indiferencia
+        
+        ### 📊 Análisis: NPS, Churn, Pain Points, Exportación
+        ### ⚡ SLA: ≤10s para 800-1200 comentarios
+        """)
+
+def render_system_status():
+    """Render system status indicators"""
     st.markdown("---")
-    st.markdown("### [LAUNCH] Acceso Rpido:")
+    st.markdown("### 🔍 Estado del Sistema:")
     
     col1, col2, col3 = st.columns(3)
     
     with col1:
-        if st.button("[FOLDER] Ir a Landing Page", use_container_width=True):
-            st.switch_page("pages/1_Landing_Page.py")
-    
-    with col2:
-        if st.button("[UPLOAD] Subir y Analizar", use_container_width=True):
-            st.switch_page("pages/2_Subir.py")
-    
-    with col3:
-        if st.button("[DATA] Ver Documentacin", use_container_width=True):
-            with st.expander("[DOCS] Documentacin del Sistema", expanded=True):
-                st.markdown("""
-                ### [EMOTIONS] Sistema de 16 Emociones
-                
-                El sistema analiza cada comentario para detectar 16 emociones especficas:
-                
-                **Emociones Positivas (7):**
-                - alegra, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
-                
-                **Emociones Negativas (7):**
-                - tristeza, enojo, miedo, desagrado, frustracin, decepcin, vergenza
-                
-                **Emociones Neutras (2):**
-                - sorpresa, indiferencia
-                
-                ### [CHART] Anlisis Incluido
-                
-                - **Distribucin de emociones**: % de cada emocin en todos los comentarios
-                - **Anlisis NPS**: Categorizacin en Promotores, Pasivos, Detractores
-                - **Riesgo de Churn**: Probabilidad de abandono del cliente
-                - **Pain Points**: Identificacin de problemas especficos
-                - **Exportacin**: Resultados en Excel, CSV o JSON
-                
-                ### [PERFORMANCE] Rendimiento
-                
-                - **Procesamiento paralelo**: Anlisis optimizado por lotes
-                - **SLA Target**: 10 segundos para 800-1200 comentarios
-                - **Modo Mock**: Funciona sin API key para pruebas
-                """)
-    
-    # System status
-    st.markdown("---")
-    st.markdown("### [SEARCH] Estado del Sistema:")
-    
-    # Check system readiness
-    status_col1, status_col2, status_col3 = st.columns(3)
-    
-    with status_col1:
         # API key status
-        from config import get_openai_api_key, is_mock_mode
+        from config import get_openai_api_key
         api_key = get_openai_api_key()
         
         if api_key:
-            st.success("[KEY] API Key: Configurada")
+            st.success("🔑 API Key: Configurada")
         else:
             if FEATURE_FLAGS.get('enable_mock_mode', True):
-                st.info("[KEY] API Key: Modo Mock Activo")
+                st.info("🔑 Modo Demo Activo")
             else:
-                st.error("[KEY] API Key: No Configurada")
+                st.error("🔑 API Key: No configurada")
     
-    with status_col2:
-        # File upload status
-        uploaded_file = state_manager.get_uploaded_file()
-        if uploaded_file:
-            st.success("[DOCUMENT] Archivo: Cargado")
+    with col2:
+        # Controller status
+        try:
+            from controller import PipelineController
+            st.success("🎛️ Controller: Disponible")
+        except ImportError:
+            st.error("🎛️ Controller: Error")
+    
+    with col3:
+        # Configuration status
+        if FEATURE_FLAGS:
+            st.success("⚙️ Config: Válida")
         else:
-            st.info("[DOCUMENT] Archivo: Pendiente")
-    
-    with status_col3:
-        # Analysis status
-        if state_manager.is_analysis_complete():
-            st.success("[TARGET] Anlisis: Completado")
-        elif state_manager.is_pipeline_running():
-            st.warning("[TARGET] Anlisis: En Proceso")
-        else:
-            st.info("[TARGET] Anlisis: Pendiente")
-    
-    # Footer
+            st.warning("⚙️ Config: Limitada")
+
+def render_footer():
+    """Render application footer"""
     st.markdown("---")
     st.markdown(f"""
     <div style='text-align: center; color: #666; font-size: 0.9em;'>
@@ -167,9 +146,6 @@ def main():
         Desarrollado por {APP_INFO['author']}
     </div>
     """, unsafe_allow_html=True)
-    
-    # Log application start
-    logger.info(f"Application started - {APP_INFO['name']} v{APP_INFO['version']}")
 
 if __name__ == "__main__":
     main()
