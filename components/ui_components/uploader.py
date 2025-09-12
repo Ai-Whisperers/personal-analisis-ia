@@ -38,7 +38,7 @@ class FileUploader:
         
         # Check file size
         if file_size_mb > self.max_file_size_mb:
-            st.error(f"[ERROR] Archivo demasiado grande. Máximo: {self.max_file_size_mb} MB")
+            st.error(f"[ERROR] Archivo demasiado grande. Mximo: {self.max_file_size_mb} MB")
             return None
         
         # Process file
@@ -62,10 +62,10 @@ class FileUploader:
                 if not file_info['has_required_columns']:
                     st.error("[ERROR] **Columnas faltantes:**")
                     for col in file_info['missing_columns']:
-                        st.write(f"   • {col}")
+                        st.write(f"    {col}")
                     st.write("**Columnas disponibles:**")
                     for col in file_info['column_names']:
-                        st.write(f"   • {col}")
+                        st.write(f"    {col}")
                     self._cleanup_temp_file(temp_path)
                     return None
                 
@@ -111,8 +111,8 @@ class FileUploader:
             st.metric("[CHECKLIST] Columnas", file_info['columns'])
         
         with col2:
-            st.metric("[STORAGE] Tamaño", f"{file_info['size_mb']} MB")
-            status = "[VALID] Válido" if file_info['has_required_columns'] else "[ERROR] Inválido"
+            st.metric("[STORAGE] Tamao", f"{file_info['size_mb']} MB")
+            status = "[VALID] Vlido" if file_info['has_required_columns'] else "[ERROR] Invlido"
             st.metric("[SEARCH] Estado", status)
     
     def _show_preview(self, temp_path: str):
@@ -123,7 +123,7 @@ class FileUploader:
             st.dataframe(df_preview, use_container_width=True)
             
             # Show basic stats
-            st.subheader("Estadísticas Básicas")
+            st.subheader("Estadsticas Bsicas")
             
             col1, col2, col3 = st.columns(3)
             

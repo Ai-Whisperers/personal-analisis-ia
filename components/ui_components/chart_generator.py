@@ -26,14 +26,14 @@ class ChartGenerator:
     
     def render_emotion_distribution_chart(self, df: pd.DataFrame, chart_type: str = "bar") -> None:
         """Render emotion distribution chart showing % of each of the 16 emotions"""
-        st.subheader("[DATA] Distribución de Emociones")
-        st.write("Porcentaje de cada emoción detectada en todos los comentarios")
+        st.subheader("[DATA] Distribucin de Emociones")
+        st.write("Porcentaje de cada emocin detectada en todos los comentarios")
         
         # Get emotion columns
         emotion_cols = [col for col in df.columns if col.startswith('emo_')]
         
         if not emotion_cols:
-            st.warning("No se encontraron datos de emociones en el análisis")
+            st.warning("No se encontraron datos de emociones en el anlisis")
             return
         
         # Calculate percentages (mean of each emotion column * 100)
@@ -89,7 +89,7 @@ class ChartGenerator:
         ])
         
         fig.update_layout(
-            title="Distribución de las 16 Emociones",
+            title="Distribucin de las 16 Emociones",
             xaxis_title="Porcentaje (%)",
             yaxis_title="Emociones",
             height=600,
@@ -135,7 +135,7 @@ class ChartGenerator:
         )])
         
         fig.update_layout(
-            title="Top 8 Emociones - Distribución",
+            title="Top 8 Emociones - Distribucin",
             height=500,
             showlegend=True,
             legend=dict(orientation="v", yanchor="middle", y=0.5, xanchor="left", x=1.05)
@@ -144,7 +144,7 @@ class ChartGenerator:
         st.plotly_chart(fig, use_container_width=True)
         
         if others_sum > 0:
-            st.info(f"💡 'Otras' incluye las {len(emotion_data) - 8} emociones restantes ({others_sum:.1f}%)")
+            st.info(f"� 'Otras' incluye las {len(emotion_data) - 8} emociones restantes ({others_sum:.1f}%)")
     
     def _render_emotion_heatmap(self, df: pd.DataFrame, emotion_cols: List[str]) -> None:
         """Render heatmap showing emotion patterns"""
@@ -166,7 +166,7 @@ class ChartGenerator:
             y=[f"Comentario {i+1}" for i in range(sample_size)],
             colorscale='RdYlGn',
             colorbar=dict(title="Intensidad"),
-            hovertemplate='<b>%{y}</b><br>Emoción: %{x}<br>Intensidad: %{z:.2f}<extra></extra>'
+            hovertemplate='<b>%{y}</b><br>Emocin: %{x}<br>Intensidad: %{z:.2f}<extra></extra>'
         ))
         
         fig.update_layout(
@@ -220,10 +220,10 @@ class ChartGenerator:
     
     def render_nps_distribution_chart(self, df: pd.DataFrame) -> None:
         """Render NPS distribution chart"""
-        st.subheader("[DATA] Distribución NPS")
+        st.subheader("[DATA] Distribucin NPS")
         
         if 'nps_category' not in df.columns:
-            st.warning("No se encontraron datos de categorías NPS")
+            st.warning("No se encontraron datos de categoras NPS")
             return
         
         # Count NPS categories
@@ -250,7 +250,7 @@ class ChartGenerator:
         )])
         
         fig.update_layout(
-            title="Distribución de Categorías NPS",
+            title="Distribucin de Categoras NPS",
             height=400,
             showlegend=True
         )
@@ -268,7 +268,7 @@ class ChartGenerator:
             # Display NPS score with interpretation
             col1, col2 = st.columns(2)
             with col1:
-                st.metric("[TARGET] Puntuación NPS", f"{nps_score:.1f}")
+                st.metric("[TARGET] Puntuacin NPS", f"{nps_score:.1f}")
             
             with col2:
                 if nps_score >= 50:
@@ -278,13 +278,13 @@ class ChartGenerator:
                 elif nps_score >= -50:
                     interpretation = "[WARNING] Mejorar"
                 else:
-                    interpretation = "[CRITICAL] Crítico"
+                    interpretation = "[CRITICAL] Crtico"
                 
-                st.metric("[CHART] Interpretación", interpretation)
+                st.metric("[CHART] Interpretacin", interpretation)
     
     def render_churn_risk_chart(self, df: pd.DataFrame) -> None:
         """Render churn risk distribution"""
-        st.subheader("[WARNING] Distribución de Riesgo de Churn")
+        st.subheader("[WARNING] Distribucin de Riesgo de Churn")
         
         if 'churn_risk' not in df.columns:
             st.warning("No se encontraron datos de riesgo de churn")
@@ -293,7 +293,7 @@ class ChartGenerator:
         churn_risks = df['churn_risk'].dropna()
         
         if len(churn_risks) == 0:
-            st.warning("No hay datos válidos de riesgo de churn")
+            st.warning("No hay datos vlidos de riesgo de churn")
             return
         
         # Create risk categories
@@ -320,7 +320,7 @@ class ChartGenerator:
         )])
         
         fig.update_layout(
-            title="Distribución de Riesgo de Churn",
+            title="Distribucin de Riesgo de Churn",
             xaxis_title="Nivel de Riesgo",
             yaxis_title="Cantidad de Clientes",
             height=400
@@ -352,10 +352,10 @@ def render_analysis_charts(df: pd.DataFrame) -> None:
     generator = ChartGenerator()
     
     # Emotion charts
-    st.header("[EMOTIONS] Análisis de Emociones")
+    st.header("[EMOTIONS] Anlisis de Emociones")
     
     chart_type = st.selectbox(
-        "Tipo de gráfico para emociones:",
+        "Tipo de grfico para emociones:",
         ["bar", "pie", "heatmap"],
         format_func=lambda x: {"bar": "Barras", "pie": "Pastel", "heatmap": "Mapa de Calor"}[x]
     )

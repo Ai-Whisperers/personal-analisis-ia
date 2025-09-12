@@ -287,7 +287,7 @@ class StreamlitHelpers:
             label,
             type=accepted_types,
             key=key,
-            help=f"Tipos aceptados: {', '.join(accepted_types)}. Tamaño máximo: {max_size_mb}MB"
+            help=f"Tipos aceptados: {', '.join(accepted_types)}. Tamao mximo: {max_size_mb}MB"
         )
         
         if uploaded_file is None:
@@ -296,13 +296,13 @@ class StreamlitHelpers:
         # Check file size
         file_size_mb = len(uploaded_file.getvalue()) / (1024 * 1024)
         if file_size_mb > max_size_mb:
-            st.error(f"Archivo demasiado grande: {file_size_mb:.1f}MB. Máximo permitido: {max_size_mb}MB")
+            st.error(f"Archivo demasiado grande: {file_size_mb:.1f}MB. Mximo permitido: {max_size_mb}MB")
             return None
         
         # Validate file type
         file_extension = uploaded_file.name.split('.')[-1].lower()
         if file_extension not in [ext.lower() for ext in accepted_types]:
-            st.error(f"Tipo de archivo no válido: .{file_extension}")
+            st.error(f"Tipo de archivo no vlido: .{file_extension}")
             return None
         
         return uploaded_file

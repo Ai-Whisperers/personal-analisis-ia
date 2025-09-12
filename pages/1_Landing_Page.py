@@ -17,7 +17,7 @@ def main():
     """Landing page main function"""
     
     # Page header
-    st.title("ğŸ  Bienvenido al Personal Comment Analyzer")
+    st.title("  Bienvenido al Personal Comment Analyzer")
     st.markdown("### Tu herramienta de analisis de sentimientos basada en IA")
     
     # Hero section
@@ -27,39 +27,39 @@ def main():
     
     with col1:
         st.markdown("""
-        ## =ï¿½ ï¿½Quï¿½ puedes hacer?
+        ## = Qu puedes hacer?
         
-        **Personal Comment Analyzer** te permite analizar comentarios de clientes de manera automï¿½tica e inteligente:
+        **Personal Comment Analyzer** te permite analizar comentarios de clientes de manera automtica e inteligente:
         
-        ### =ï¿½ **Anï¿½lisis de 16 Emociones**
-        Detecta emociones especï¿½ficas en cada comentario con alta precisiï¿½n
+        ### = **Anlisis de 16 Emociones**
+        Detecta emociones especficas en cada comentario con alta precisin
         
-        ### =ï¿½ **Anï¿½lisis NPS Automï¿½tico**  
+        ### = **Anlisis NPS Automtico**  
         Categoriza clientes en Promotores, Pasivos y Detractores
         
-        ### ï¿½ **Predicciï¿½n de Churn**
+        ###  **Prediccin de Churn**
         Identifica clientes en riesgo de abandonar tu servicio
         
-        ### <ï¿½ **Identificaciï¿½n de Pain Points**
-        Encuentra problemas especï¿½ficos mencionados por tus clientes
+        ### < **Identificacin de Pain Points**
+        Encuentra problemas especficos mencionados por tus clientes
         
-        ### =ï¿½ **Exportaciï¿½n Completa**
+        ### = **Exportacin Completa**
         Descarga resultados en Excel, CSV o JSON
         """)
     
     with col2:
         st.markdown("""
-        ### <ï¿½ Sistema de Emociones
+        ### < Sistema de Emociones
         
         **Positivas (7):**
-        - Alegrï¿½a, Confianza, Expectativa
+        - Alegra, Confianza, Expectativa
         - Gratitud, Aprecio, Entusiasmo  
         - Esperanza
         
         **Negativas (7):**
         - Tristeza, Enojo, Miedo
-        - Desagrado, Frustraciï¿½n
-        - Decepciï¿½n, Vergï¿½enza
+        - Desagrado, Frustracin
+        - Decepcin, Vergenza
         
         **Neutras (2):**
         - Sorpresa, Indiferencia
@@ -67,7 +67,7 @@ def main():
     
     # Quick stats
     st.markdown("---")
-    st.markdown("## =ï¿½ Capacidades del Sistema")
+    st.markdown("## = Capacidades del Sistema")
     
     metrics = {
         "Emociones Detectadas": "16",
@@ -80,53 +80,53 @@ def main():
     
     # How it works section
     st.markdown("---")
-    st.markdown("## = ï¿½Cï¿½mo Funciona?")
+    st.markdown("## = Cmo Funciona?")
     
     step_col1, step_col2, step_col3, step_col4 = st.columns(4)
     
     with step_col1:
         st.markdown("""
-        ### 1ï¿½ Sube tu Excel
+        ### 1 Sube tu Excel
         
         Archivo con columnas:
-        - **NPS**: Puntuaciï¿½n 0-10
-        - **Nota**: Calificaciï¿½n  
+        - **NPS**: Puntuacin 0-10
+        - **Nota**: Calificacin  
         - **Comentario Final**: Texto
         """)
     
     with step_col2:
         st.markdown("""
-        ### 2ï¿½ Procesamiento IA
+        ### 2 Procesamiento IA
         
-        - Anï¿½lisis paralelo por lotes
+        - Anlisis paralelo por lotes
         - 16 emociones por comentario
-        - Identificaciï¿½n de patrones
+        - Identificacin de patrones
         """)
     
     with step_col3:
         st.markdown("""
-        ### 3ï¿½ Anï¿½lisis Avanzado
+        ### 3 Anlisis Avanzado
         
-        - Categorizaciï¿½n NPS
+        - Categorizacin NPS
         - Riesgo de Churn
         - Pain Points
         """)
     
     with step_col4:
         st.markdown("""
-        ### 4ï¿½ Resultados
+        ### 4 Resultados
         
-        - Grï¿½ficos interactivos
-        - Insights automï¿½ticos
-        - Exportaciï¿½n completa
+        - Grficos interactivos
+        - Insights automticos
+        - Exportacin completa
         """)
     
     # Demo section
     st.markdown("---")
-    st.markdown("## <ï¿½ Ejemplo de Resultados")
+    st.markdown("## < Ejemplo de Resultados")
     
     # Create sample data visualization
-    with st.expander("=@ Ver ejemplo de anï¿½lisis", expanded=False):
+    with st.expander("=@ Ver ejemplo de anlisis", expanded=False):
         demo_col1, demo_col2 = st.columns(2)
         
         with demo_col1:
@@ -135,25 +135,25 @@ def main():
             *"El servicio es terrible, muy lento y el soporte no me ayuda. Estoy muy frustrado."*
             
             **Emociones detectadas:**
-            - Frustraciï¿½n: 85%
+            - Frustracin: 85%
             - Enojo: 70%
-            - Decepciï¿½n: 60%
+            - Decepcin: 60%
             - Desagrado: 45%
             """)
         
         with demo_col2:
             st.markdown("""
-            **Anï¿½lisis adicional:**
-            - **NPS Categorï¿½a**: Detractor
+            **Anlisis adicional:**
+            - **NPS Categora**: Detractor
             - **Churn Risk**: 0.85 (Alto)
             - **Pain Points**: servicio lento, soporte deficiente
             
-            **Recomendaciï¿½n**: Contacto prioritario para retenciï¿½n
+            **Recomendacin**: Contacto prioritario para retencin
             """)
     
     # System status
     st.markdown("---")
-    st.markdown("## ï¿½ Estado del Sistema")
+    st.markdown("##  Estado del Sistema")
     
     state_manager = get_state_manager()
     
@@ -164,82 +164,82 @@ def main():
         api_key = get_openai_api_key()
         
         if api_key:
-            st.success("=ï¿½ **API**: Configurada y lista")
+            st.success("= **API**: Configurada y lista")
         else:
             if FEATURE_FLAGS.get('enable_mock_mode', True):
                 st.info("=5 **API**: Modo demo disponible")
             else:
-                st.error("=4 **API**: Configuraciï¿½n requerida")
+                st.error("=4 **API**: Configuracin requerida")
     
     with status_col2:
         uploaded_file = state_manager.get_uploaded_file()
         if uploaded_file:
-            st.success("=ï¿½ **Archivo**: Listo para analizar")
+            st.success("= **Archivo**: Listo para analizar")
         else:
             st.info("=5 **Archivo**: Esperando subida")
     
     with status_col3:
         if state_manager.is_analysis_complete():
-            st.success("=ï¿½ **Anï¿½lisis**: Resultados disponibles")
+            st.success("= **Anlisis**: Resultados disponibles")
         elif state_manager.is_pipeline_running():
-            st.warning("=ï¿½ **Anï¿½lisis**: Procesando...")
+            st.warning("= **Anlisis**: Procesando...")
         else:
-            st.info("=5 **Anï¿½lisis**: Listo para iniciar")
+            st.info("=5 **Anlisis**: Listo para iniciar")
     
     # Action buttons
     st.markdown("---")
-    st.markdown("## =ï¿½ ï¿½Comienza Ahora!")
+    st.markdown("## = Comienza Ahora!")
     
     action_col1, action_col2, action_col3 = st.columns([1, 1, 1])
     
     with action_col1:
-        if st.button("=ï¿½ **Subir Archivo y Analizar**", use_container_width=True, type="primary"):
+        if st.button("= **Subir Archivo y Analizar**", use_container_width=True, type="primary"):
             st.switch_page("pages/2_Subir.py")
     
     with action_col2:
         if uploaded_file and not state_manager.is_pipeline_running():
-            if st.button("<ï¿½ **Iniciar Anï¿½lisis**", use_container_width=True):
+            if st.button("< **Iniciar Anlisis**", use_container_width=True):
                 st.switch_page("pages/2_Subir.py")
         else:
-            st.button("<ï¿½ **Iniciar Anï¿½lisis**", use_container_width=True, disabled=True)
+            st.button("< **Iniciar Anlisis**", use_container_width=True, disabled=True)
     
     with action_col3:
         if state_manager.is_analysis_complete():
-            if st.button("=ï¿½ **Ver Resultados**", use_container_width=True):
+            if st.button("= **Ver Resultados**", use_container_width=True):
                 st.switch_page("pages/2_Subir.py")
         else:
-            st.button("=ï¿½ **Ver Resultados**", use_container_width=True, disabled=True)
+            st.button("= **Ver Resultados**", use_container_width=True, disabled=True)
     
     # Tips section
     st.markdown("---")
-    st.markdown("## =ï¿½ Consejos para mejores resultados")
+    st.markdown("## = Consejos para mejores resultados")
     
     tip_col1, tip_col2 = st.columns(2)
     
     with tip_col1:
         st.markdown("""
-        ### =ï¿½ **Preparaciï¿½n del archivo**
-        - Asegï¿½rate de que las columnas tengan los nombres exactos
+        ### = **Preparacin del archivo**
+        - Asegrate de que las columnas tengan los nombres exactos
         - Limpia comentarios muy cortos (menos de 5 caracteres)  
-        - Verifica que los valores NPS estï¿½n entre 0-10
+        - Verifica que los valores NPS estn entre 0-10
         - Formato recomendado: Excel (.xlsx)
         """)
     
     with tip_col2:
         st.markdown("""
-        ### ï¿½ **Optimizaciï¿½n de rendimiento**
+        ###  **Optimizacin de rendimiento**
         - Archivos de hasta 50MB son procesados eficientemente
         - Lotes de 100 comentarios se procesan en paralelo
         - Tiempo esperado: ~8-10 segundos para 1000 comentarios
-        - Los resultados se guardan automï¿½ticamente
+        - Los resultados se guardan automticamente
         """)
     
     # Footer
     st.markdown("---")
     st.markdown(f"""
     <div style='text-align: center; color: #666; font-size: 0.8em; padding: 20px;'>
-        <ï¿½ {APP_INFO['name']} v{APP_INFO['version']} | 
-        Desarrollado con d por {APP_INFO['author']} | 
+        < {APP_INFO['name']} v{APP_INFO['version']} | 
+        Desarrollado con d por {APP_INFO['author']} | 
         <a href='{APP_INFO['repository']}' target='_blank'>Ver en GitHub</a>
     </div>
     """, unsafe_allow_html=True)

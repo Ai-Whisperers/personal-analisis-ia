@@ -23,8 +23,8 @@ class ReportExporter:
     
     def render_export_section(self, df: pd.DataFrame, analysis_summary: Optional[Dict[str, Any]] = None) -> None:
         """Render export options and buttons"""
-        st.subheader("📥 Exportar Resultados")
-        st.write("Descarga los resultados del análisis en diferentes formatos")
+        st.subheader("� Exportar Resultados")
+        st.write("Descarga los resultados del anlisis en diferentes formatos")
         
         if df.empty:
             st.warning("No hay datos para exportar")
@@ -35,7 +35,7 @@ class ReportExporter:
         
         with col1:
             export_format = st.selectbox(
-                "Formato de exportación:",
+                "Formato de exportacin:",
                 options=list(self.export_formats.keys()),
                 format_func=lambda x: self.export_formats[x],
                 key="export_format_selector"
@@ -45,11 +45,11 @@ class ReportExporter:
             include_summary = st.checkbox(
                 "Incluir resumen", 
                 value=True,
-                help="Incluir hoja de resumen con estadísticas"
+                help="Incluir hoja de resumen con estadsticas"
             )
         
         # Export options
-        st.write("**Opciones de exportación:**")
+        st.write("**Opciones de exportacin:**")
         
         col1, col2, col3 = st.columns(3)
         
@@ -57,7 +57,7 @@ class ReportExporter:
             include_emotions = st.checkbox("[EMOTIONS] Datos de emociones", value=True)
         
         with col2:
-            include_analysis = st.checkbox("[DATA] Análisis completo", value=True)
+            include_analysis = st.checkbox("[DATA] Anlisis completo", value=True)
         
         with col3:
             include_raw = st.checkbox("[DOCUMENT] Datos originales", value=False)
@@ -95,7 +95,7 @@ class ReportExporter:
                 st.error(f"[ERROR] Error al exportar: {str(e)}")
         
         # Show export preview
-        if st.checkbox("Ver vista previa de exportación", key="preview_export"):
+        if st.checkbox("Ver vista previa de exportacin", key="preview_export"):
             self._show_export_preview(df)
     
     def _prepare_export_data(

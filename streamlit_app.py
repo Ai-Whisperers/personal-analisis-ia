@@ -16,7 +16,7 @@ st.set_page_config(
     menu_items={
         'Get Help': 'https://github.com/Ai-Whisperers/personal-analisis-ia',
         'Report a bug': "https://github.com/Ai-Whisperers/personal-analisis-ia/issues",
-        'About': "# Personal Comment Analyzer\nAnálisis de sentimientos con IA usando 16 emociones específicas."
+        'About': "# Personal Comment Analyzer\nAnlisis de sentimientos con IA usando 16 emociones especficas."
     }
 )
 
@@ -48,7 +48,7 @@ def main():
     # Application header
     st.title(f"[EMOTIONS] {APP_INFO['name']}")
     st.markdown(f"*{APP_INFO['description']}*")
-    st.markdown(f"**Versión:** {APP_INFO['version']}")
+    st.markdown(f"**Versin:** {APP_INFO['version']}")
     
     # Show debug info if enabled
     if FEATURE_FLAGS.get('enable_debug_mode', False):
@@ -62,22 +62,22 @@ def main():
     # Navigation instructions
     st.markdown("---")
     st.markdown("""
-    ## [CHECKLIST] Cómo usar la aplicación:
+    ## [CHECKLIST] Cmo usar la aplicacin:
     
-    1. **[FOLDER] Página Principal**: Ve a la página **1_Landing_Page** para comenzar
-    2. **[UPLOAD] Subir Archivo**: Usa la página **2_Subir** para subir tu Excel y ejecutar el análisis
-    3. **[DATA] Resultados**: Los resultados aparecerán automáticamente después del análisis
+    1. **[FOLDER] Pgina Principal**: Ve a la pgina **1_Landing_Page** para comenzar
+    2. **[UPLOAD] Subir Archivo**: Usa la pgina **2_Subir** para subir tu Excel y ejecutar el anlisis
+    3. **[DATA] Resultados**: Los resultados aparecern automticamente despus del anlisis
     
     ### [DOCUMENT] Formato de archivo requerido:
     Tu archivo Excel debe contener las siguientes columnas:
-    - **NPS**: Puntuación NPS (0-10)
-    - **Nota**: Calificación del cliente
+    - **NPS**: Puntuacin NPS (0-10)
+    - **Nota**: Calificacin del cliente
     - **Comentario Final**: Texto del comentario a analizar
     """)
     
     # Quick access buttons
     st.markdown("---")
-    st.markdown("### [LAUNCH] Acceso Rápido:")
+    st.markdown("### [LAUNCH] Acceso Rpido:")
     
     col1, col2, col3 = st.columns(3)
     
@@ -90,34 +90,34 @@ def main():
             st.switch_page("pages/2_Subir.py")
     
     with col3:
-        if st.button("[DATA] Ver Documentación", use_container_width=True):
-            with st.expander("[DOCS] Documentación del Sistema", expanded=True):
+        if st.button("[DATA] Ver Documentacin", use_container_width=True):
+            with st.expander("[DOCS] Documentacin del Sistema", expanded=True):
                 st.markdown("""
                 ### [EMOTIONS] Sistema de 16 Emociones
                 
-                El sistema analiza cada comentario para detectar 16 emociones específicas:
+                El sistema analiza cada comentario para detectar 16 emociones especficas:
                 
                 **Emociones Positivas (7):**
-                - alegría, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
+                - alegra, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
                 
                 **Emociones Negativas (7):**
-                - tristeza, enojo, miedo, desagrado, frustración, decepción, vergüenza
+                - tristeza, enojo, miedo, desagrado, frustracin, decepcin, vergenza
                 
                 **Emociones Neutras (2):**
                 - sorpresa, indiferencia
                 
-                ### [CHART] Análisis Incluido
+                ### [CHART] Anlisis Incluido
                 
-                - **Distribución de emociones**: % de cada emoción en todos los comentarios
-                - **Análisis NPS**: Categorización en Promotores, Pasivos, Detractores
+                - **Distribucin de emociones**: % de cada emocin en todos los comentarios
+                - **Anlisis NPS**: Categorizacin en Promotores, Pasivos, Detractores
                 - **Riesgo de Churn**: Probabilidad de abandono del cliente
-                - **Pain Points**: Identificación de problemas específicos
-                - **Exportación**: Resultados en Excel, CSV o JSON
+                - **Pain Points**: Identificacin de problemas especficos
+                - **Exportacin**: Resultados en Excel, CSV o JSON
                 
                 ### [PERFORMANCE] Rendimiento
                 
-                - **Procesamiento paralelo**: Análisis optimizado por lotes
-                - **SLA Target**: ≤10 segundos para 800-1200 comentarios
+                - **Procesamiento paralelo**: Anlisis optimizado por lotes
+                - **SLA Target**: 10 segundos para 800-1200 comentarios
                 - **Modo Mock**: Funciona sin API key para pruebas
                 """)
     
@@ -152,11 +152,11 @@ def main():
     with status_col3:
         # Analysis status
         if state_manager.is_analysis_complete():
-            st.success("[TARGET] Análisis: Completado")
+            st.success("[TARGET] Anlisis: Completado")
         elif state_manager.is_pipeline_running():
-            st.warning("[TARGET] Análisis: En Proceso")
+            st.warning("[TARGET] Anlisis: En Proceso")
         else:
-            st.info("[TARGET] Análisis: Pendiente")
+            st.info("[TARGET] Anlisis: Pendiente")
     
     # Footer
     st.markdown("---")
