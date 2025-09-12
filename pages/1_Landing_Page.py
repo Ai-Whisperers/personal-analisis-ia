@@ -18,8 +18,8 @@ def main():
     """Landing page main function"""
     
     # Page header
-    st.title("� Bienvenido al Personal Comment Analyzer")
-    st.markdown("### Tu herramienta de analisis de sentimientos basada en IA")
+    st.title("🎭 Bienvenido al Personal Comment Analyzer")
+    st.markdown("### Tu herramienta de análisis de sentimientos basada en IA")
     
     # Hero section
     st.markdown("---")
@@ -28,39 +28,39 @@ def main():
     
     with col1:
         st.markdown("""
-        ## = Qu puedes hacer?
+        ## ¿Qué puedes hacer?
         
-        **Personal Comment Analyzer** te permite analizar comentarios de clientes de manera automtica e inteligente:
+        **Personal Comment Analyzer** te permite analizar comentarios de clientes de manera automática e inteligente:
         
-        ### = **Anlisis de 16 Emociones**
-        Detecta emociones especficas en cada comentario con alta precisin
+        ### 🎭 **Análisis de 16 Emociones**
+        Detecta emociones específicas en cada comentario con alta precisión
         
-        ### = **Anlisis NPS Automtico**  
+        ### 📊 **Análisis NPS Automático**  
         Categoriza clientes en Promotores, Pasivos y Detractores
         
-        ###  **Prediccin de Churn**
+        ### ⚠️ **Predicción de Churn**
         Identifica clientes en riesgo de abandonar tu servicio
         
-        ### < **Identificacin de Pain Points**
-        Encuentra problemas especficos mencionados por tus clientes
+        ### 🎯 **Identificación de Pain Points**
+        Encuentra problemas específicos mencionados por tus clientes
         
-        ### = **Exportacin Completa**
+        ### 📁 **Exportación Completa**
         Descarga resultados en Excel, CSV o JSON
         """)
     
     with col2:
         st.markdown("""
-        ### < Sistema de Emociones
+        ### 🎭 Sistema de Emociones
         
         **Positivas (7):**
-        - Alegra, Confianza, Expectativa
+        - Alegría, Confianza, Expectativa
         - Gratitud, Aprecio, Entusiasmo  
         - Esperanza
         
         **Negativas (7):**
         - Tristeza, Enojo, Miedo
-        - Desagrado, Frustracin
-        - Decepcin, Vergenza
+        - Desagrado, Frustración
+        - Decepción, Vergüenza
         
         **Neutras (2):**
         - Sorpresa, Indiferencia
@@ -68,12 +68,12 @@ def main():
     
     # Quick stats
     st.markdown("---")
-    st.markdown("## = Capacidades del Sistema")
+    st.markdown("## 📊 Capacidades del Sistema")
     
     metrics = {
         "Emociones Detectadas": "16",
         "Procesamiento": "Paralelo",
-        "Tiempo SLA": "d10s",
+        "Tiempo SLA": "≤10s",
         "Formato Soporte": "Excel, CSV"
     }
     
@@ -81,53 +81,53 @@ def main():
     
     # How it works section
     st.markdown("---")
-    st.markdown("## = Cmo Funciona?")
+    st.markdown("## 🔄 ¿Cómo Funciona?")
     
     step_col1, step_col2, step_col3, step_col4 = st.columns(4)
     
     with step_col1:
         st.markdown("""
-        ### 1 Sube tu Excel
+        ### 1️⃣ Sube tu Excel
         
         Archivo con columnas:
-        - **NPS**: Puntuacin 0-10
-        - **Nota**: Calificacin  
+        - **NPS**: Puntuación 0-10
+        - **Nota**: Calificación  
         - **Comentario Final**: Texto
         """)
     
     with step_col2:
         st.markdown("""
-        ### 2 Procesamiento IA
+        ### 2️⃣ Procesamiento IA
         
-        - Anlisis paralelo por lotes
+        - Análisis paralelo por lotes
         - 16 emociones por comentario
-        - Identificacin de patrones
+        - Identificación de patrones
         """)
     
     with step_col3:
         st.markdown("""
-        ### 3 Anlisis Avanzado
+        ### 3️⃣ Análisis Avanzado
         
-        - Categorizacin NPS
+        - Categorización NPS
         - Riesgo de Churn
         - Pain Points
         """)
     
     with step_col4:
         st.markdown("""
-        ### 4 Resultados
+        ### 4️⃣ Resultados
         
-        - Grficos interactivos
-        - Insights automticos
-        - Exportacin completa
+        - Gráficos interactivos
+        - Insights automáticos
+        - Exportación completa
         """)
     
     # Demo section
     st.markdown("---")
-    st.markdown("## < Ejemplo de Resultados")
+    st.markdown("## 📋 Ejemplo de Resultados")
     
     # Create sample data visualization
-    with st.expander("=@ Ver ejemplo de anlisis", expanded=False):
+    with st.expander("👁️ Ver ejemplo de análisis", expanded=False):
         demo_col1, demo_col2 = st.columns(2)
         
         with demo_col1:
@@ -136,16 +136,16 @@ def main():
             *"El servicio es terrible, muy lento y el soporte no me ayuda. Estoy muy frustrado."*
             
             **Emociones detectadas:**
-            - Frustracin: 85%
+            - Frustración: 85%
             - Enojo: 70%
-            - Decepcin: 60%
+            - Decepción: 60%
             - Desagrado: 45%
             """)
         
         with demo_col2:
             st.markdown("""
-            **Anlisis adicional:**
-            - **NPS Categora**: Detractor
+            **Análisis adicional:**
+            - **NPS Categoría**: Detractor
             - **Churn Risk**: 0.85 (Alto)
             - **Pain Points**: servicio lento, soporte deficiente
             
