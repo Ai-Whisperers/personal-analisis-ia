@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+.env
+*.log
+
+# Streamlit secrets
+.streamlit/secrets.toml
+
+# Local sensitive outputs
+local-reports/
+
+# Data files
+*.xlsx
+*.csv
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude context file
+CLAUDE.md
