@@ -1,19 +1,21 @@
-# Arquitectura del Sistema
+# Arquitectura del Sistema v2.0
 
 ## Reglas Anti-Overengineering ✅
 
 1. **UI solo en `pages/` + `static/`** (sin lógica de negocio)
 2. **Lógica en `core/`** (completamente separada de Streamlit)
 3. **≤480 líneas por archivo** (sin imports cíclicos)
-4. **Concurrencia paralela** en `core/ai_engine/api_call.py` usando ThreadPoolExecutor
-5. **Estado/caché** manejado en UI layer (session_state, cache_data/resource)
-6. **SLA**: ≤10s P50 para 800-1200 filas (monitoreo en `utils/performance_monitor.py`)
+4. **Controller Architecture** en `controller/` usando PipelineController
+5. **Rate Limiting Inteligente** en `utils/rate_limiter.py` con UsageMonitor
+6. **SLA**: ≤10s P50 para 800-1200 filas con usage monitoring
 
-### Fixes Implementados Recientemente
-- **CSS Modular**: Resolver @import statements para glassmorphism completo
-- **Column Mapping**: Normalización automática de nombres de columnas ('Comentario Final Final' → 'Comentario Final')
-- **Path Imports**: Corrección de imports faltantes en streamlit_helpers
-- **Validator Enhancement**: Manejo robusto de variaciones en nombres de columnas
+### Nuevas Características v2.0
+- **Controller Architecture**: PipelineController + BackgroundRunner para UI no bloqueante
+- **Rate Limiting**: RateLimiter inteligente con token counting y backoff
+- **Usage Monitoring**: UsageMonitor con alertas y recommendations
+- **Dynamic Batching**: Ajuste automático de batch size basado en API usage
+- **Production Config**: Secrets management y configuración por tier de API
+- **Background Processing**: Procesamiento asíncrono para mejor UX
 
 ## Estructura del Proyecto
 

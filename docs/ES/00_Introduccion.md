@@ -1,8 +1,8 @@
-# Personal Comment Analyzer - Introducción
+# Personal Comment Analyzer - Introducción v2.0
 
 ## Descripción General
 
-Personal Comment Analyzer es un sistema avanzado de análisis de sentimientos de comentarios usando IA, específicamente diseñado para analizar feedback de clientes con un enfoque en 16 emociones específicas.
+Personal Comment Analyzer es un sistema avanzado de análisis de sentimientos de comentarios usando IA, específicamente diseñado para analizar feedback de clientes con un enfoque en 16 emociones específicas. La versión 2.0 incluye rate limiting inteligente, usage monitoring, y arquitectura production-ready.
 
 ## Características Principales
 
@@ -25,35 +25,61 @@ El sistema analiza cada comentario detectando 16 emociones específicas:
 - **Pain Points**: Identificación de problemas específicos
 - **Exportación**: Resultados en Excel, CSV o JSON
 
-### ⚡ Performance
-- **Procesamiento paralelo**: Análisis optimizado por lotes
-- **SLA Target**: ≤10 segundos para 800-1200 comentarios  
-- **Modo Mock**: Funciona sin API key para pruebas
-- **Concurrencia**: ThreadPoolExecutor para máximo rendimiento
+### ⚡ Performance v2.0
+- **Rate Limiting Inteligente**: Prevención proactiva de errores 429
+- **Dynamic Batch Sizing**: Ajuste automático basado en token usage
+- **SLA Target**: ≤10 segundos para 800-1200 comentarios con monitoring
+- **Background Processing**: UI no bloqueante con BackgroundRunner
+- **Usage Monitoring**: Tracking detallado de costos y performance
+- **Production Config**: Secrets management y configuración robusta
 
-## Tecnologías
+## Tecnologías v2.0
 
 - **Frontend**: Streamlit + CSS Glassmorphism
-- **Backend**: Python core modules
-- **IA**: OpenAI API (con fallback mock)
-- **Datos**: Excel input/output
-- **Visualización**: Plotly charts
-- **Concurrencia**: ThreadPoolExecutor
+- **Backend**: Controller-based architecture + Core modules
+- **IA**: OpenAI API con rate limiting inteligente
+- **Datos**: Excel input/output con validación robusta
+- **Visualización**: Plotly charts + Usage dashboards
+- **Concurrencia**: ThreadPoolExecutor + BackgroundRunner
+- **Monitoring**: RateLimiter + UsageMonitor en tiempo real
 
-## Casos de Uso
+## Casos de Uso v2.0
 
-1. **Análisis de Feedback**: Procesar encuestas de satisfacción
-2. **Detección de Churn**: Identificar clientes en riesgo de abandono  
-3. **NPS Analysis**: Calcular y categorizar Net Promoter Score
-4. **Pain Points**: Encontrar problemas específicos en comentarios
-5. **Reporting**: Generar reportes ejecutivos con visualizaciones
+1. **Análisis de Feedback**: Procesar encuestas con cost optimization
+2. **Detección de Churn**: Identificar clientes en riesgo con monitoring
+3. **NPS Analysis**: Calcular NPS con usage analytics
+4. **Pain Points**: Encontrar problemas con rate limiting inteligente
+5. **Reporting**: Generar reportes + métricas de API usage
+6. **Production Analysis**: Análisis enterprise con background processing
 
-## Requisitos del Sistema
+## Requisitos del Sistema v2.0
 
 - Python 3.8+
 - Streamlit
-- OpenAI API Key (opcional - tiene modo mock)
+- OpenAI API Key con tier configurado para rate limits
 - Archivo Excel con columnas: `NPS`, `Nota`, `Comentario Final`
+- Configuración de secrets.toml para production
+- Variables de entorno para API tier y limits
+
+## Nuevas Características v2.0
+
+### 🎛️ **Controller Architecture**
+- `PipelineController`: Centraliza orquestación del pipeline
+- `BackgroundRunner`: Procesamiento no bloqueante
+- `StateManager`: Manejo avanzado de estado
+
+### 📊 **Rate Limiting & Monitoring**
+- `RateLimiter`: Prevención inteligente de errores 429
+- `UsageMonitor`: Tracking detallado de costos API
+- Dynamic batch sizing basado en token usage
+- Alertas automáticas de uso
+
+### 🔧 **Production Features**
+- Secrets management robusto
+- Configuration by API tier
+- Error handling mejorado
+- Background processing para UX
+- Usage analytics y recommendations
 
 ## Navegación
 

@@ -1,4 +1,4 @@
-# Flujo del Pipeline de Análisis
+# Flujo del Pipeline de Análisis v2.0
 
 ## Diagrama del Pipeline Completo
 
