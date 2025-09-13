@@ -9,15 +9,16 @@ from contextlib import contextmanager
 import logging
 from pathlib import Path
 
-from controller.state_manager import StreamlitStateManager
+# Delayed import to avoid circular dependency
+# from controller.state_manager import StreamlitStateManager
 
 logger = logging.getLogger(__name__)
 
 class StreamlitHelpers:
     """Helper functions for Streamlit UI operations"""
-    
+
     def __init__(self):
-        self.state_manager = StreamlitStateManager()
+        self._state_manager = None
     
     @contextmanager
     def status_container(self, message: str, expanded: bool = False):
@@ -382,15 +383,18 @@ class StreamlitHelpers:
         
         logger.info("Glassmorphism theme applied successfully")
     
-    def get_state_manager(self) -> StreamlitStateManager:
-        """Get the state manager instance"""
-        return self.state_manager
+    def get_state_manager(self):
+        """Get the state manager instance (lazy import)"""
+        if self._state_manager is None:
+            from controller.state_manager import StreamlitStateManager
+            self._state_manager = StreamlitStateManager()
+        return self._state_manager
 
 # Global instance for easy import
 helpers = StreamlitHelpers()
 
 # Convenience functions
-def get_state_manager() -> StreamlitStateManager:
+def get_state_manager():
     """Get Streamlit-backed state manager"""
     return helpers.get_state_manager()
 

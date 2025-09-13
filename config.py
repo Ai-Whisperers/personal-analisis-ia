@@ -165,7 +165,7 @@ def get_rate_limits() -> Dict[str, Any]:
         "requests_per_minute": int(tier_data["requests_per_minute"] * safety_margin),
         "tokens_per_minute": int(tier_data["tokens_per_minute"] * safety_margin),
         "max_concurrent_requests": min(
-            int(get_secret("MAX_WORKERS", "12")),
+            int(get_secret("MAX_WORKERS", "4")),
             int(tier_data["requests_per_minute"] * safety_margin / 5)  # Conservative estimate
         )
     }
