@@ -3,7 +3,6 @@
 Configuration file for Personal Comment Analyzer
 Contains all constants, settings, and configuration parameters
 """
-import streamlit as st
 import os
 from typing import Dict, List, Any
 
@@ -42,25 +41,32 @@ def get_openai_api_key() -> str:
     """Get OpenAI API key from Streamlit secrets or environment variables"""
     try:
         # Try Streamlit secrets first (recommended for Streamlit Cloud)
-        if hasattr(st, 'secrets') and "OPENAI_API_KEY" in st.secrets:
-            return st.secrets["OPENAI_API_KEY"]
-        return st.secrets.get("OPENAI_API_KEY", "")
+        try:
+            import streamlit as st
+            if hasattr(st, 'secrets') and "OPENAI_API_KEY" in st.secrets:
+                return st.secrets["OPENAI_API_KEY"]
+            return st.secrets.get("OPENAI_API_KEY", "")
+        except ImportError:
+            pass
     except Exception:
-        # Fallback to environment variable for local development
-        return os.environ.get("OPENAI_API_KEY", "")
+        pass
+    # Fallback to environment variable for local development
+    return os.environ.get("OPENAI_API_KEY", "")
 
 def get_secret(key: str, default: str = "") -> str:
     """Get secret from Streamlit secrets with fallback to environment"""
     try:
-        if hasattr(st, 'secrets') and key in st.secrets:
-            return st.secrets[key]
-        return st.secrets.get(key, os.environ.get(key, default))
+        try:
+            import streamlit as st
+            if hasattr(st, 'secrets') and key in st.secrets:
+                return st.secrets[key]
+            return st.secrets.get(key, os.environ.get(key, default))
+        except ImportError:
+            pass
     except Exception:
-        return os.environ.get(key, default)
+        pass
+    return os.environ.get(key, default)
 
-def is_mock_mode() -> bool:
-    """Check if mock mode is enabled (when no API key is available)"""
-    return not bool(get_openai_api_key())
 
 # LLM Model Configuration (with secrets support)
 def get_llm_config() -> Dict[str, Any]:
@@ -73,12 +79,15 @@ def get_llm_config() -> Dict[str, Any]:
     }
 
 # Dynamic LLM config
-LLM_CONFIG = get_llm_config() if 'st' in globals() else {
-    "model": "gpt-3.5-turbo",
-    "temperature": 0.3,
-    "max_tokens": 500,
-    "timeout": 30
-}
+try:
+    LLM_CONFIG = get_llm_config()
+except Exception:
+    LLM_CONFIG = {
+        "model": "gpt-3.5-turbo",
+        "temperature": 0.3,
+        "max_tokens": 500,
+        "timeout": 30
+    }
 
 # ============================================================================
 # PROCESSING CONFIGURATION
@@ -97,14 +106,17 @@ def get_batch_config() -> Dict[str, Any]:
     }
 
 # Dynamic batch config
-BATCH_CONFIG = get_batch_config() if 'st' in globals() else {
-    "batch_size": 100,
-    "max_concurrent_batches": 4,
-    "retry_attempts": 3,
-    "retry_delay": 1,
-    "rate_limit_delay": 0.5,
-    "requests_per_minute": 50
-}
+try:
+    BATCH_CONFIG = get_batch_config()
+except Exception:
+    BATCH_CONFIG = {
+        "batch_size": 100,
+        "max_concurrent_batches": 4,
+        "retry_attempts": 3,
+        "retry_delay": 1,
+        "rate_limit_delay": 0.5,
+        "requests_per_minute": 50
+    }
 
 # File processing limits
 FILE_CONFIG = {
@@ -291,8 +303,12 @@ def get_app_config() -> Dict[str, Any]:
         "app_info": APP_INFO
     }
 
-def validate_config() -> bool:
-    """Validate configuration consistency"""
+def validate_config() -> tuple[bool, str]:
+    """Validate configuration consistency
+    
+    Returns:
+        tuple[bool, str]: (is_valid, error_message)
+    """
     try:
         # Validate emotions configuration
         assert len(EMOTIONS_16) == 16, f"Expected 16 emotions, got {len(EMOTIONS_16)}"
@@ -316,14 +332,12 @@ def validate_config() -> bool:
                     break
             assert found, f"Emotion '{emotion}' not found in any category"
         
-        return True
+        return True, ""
     
     except AssertionError as e:
-        st.error(f"Configuration validation error: {e}")
-        return False
+        return False, f"Configuration validation error: {e}"
     except Exception as e:
-        st.error(f"Unexpected configuration error: {e}")
-        return False
+        return False, f"Unexpected configuration error: {e}"
 
 # Validate configuration on import
 if __name__ != "__main__":

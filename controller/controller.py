@@ -178,11 +178,11 @@ class PipelineController(IPipelineRunner):
             
             is_valid = validate_file(tmp_path)
             validation_result = {
-                'is_valid': is_valid,
+                'success': is_valid,
                 'message': 'File structure validated' if is_valid else 'Invalid file structure or format'
             }
             
-            if validation_result['is_valid']:
+            if validation_result['success']:
                 file_info = {
                     'name': uploaded_file.name,
                     'size': len(uploaded_file.getvalue()),
@@ -272,7 +272,7 @@ class PipelineController(IPipelineRunner):
             return {}
     
     def cleanup(self) -> None:
-        """Clean up resources"""
+        """Clean up resources and temporary files"""
         # Clean up temp files
         file_info = self.state_manager.get_uploaded_file()
         if file_info and 'temp_path' in file_info:
@@ -287,3 +287,11 @@ class PipelineController(IPipelineRunner):
         # Shutdown background runner
         self.background_runner.shutdown()
         logger.info("Pipeline controller cleanup complete")
+    
+    def __del__(self):
+        """Destructor to ensure cleanup even if not explicitly called"""
+        try:
+            self.cleanup()
+        except Exception as e:
+            # Silent cleanup in destructor to avoid issues during garbage collection
+            pass
