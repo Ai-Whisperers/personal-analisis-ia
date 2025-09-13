@@ -33,8 +33,64 @@ EMO_CATEGORIES = {
 }
 
 # ============================================================================
-# API CONFIGURATION
+# API CONFIGURATION & RATE LIMITS
 # ============================================================================
+
+# OpenAI API Rate Limits by Tier
+OPENAI_RATE_LIMITS = {
+    "tier_1": {
+        "requests_per_minute": 500,
+        "tokens_per_minute": 200000,
+        "description": "Default tier for new accounts"
+    },
+    "tier_2": {
+        "requests_per_minute": 5000,
+        "tokens_per_minute": 2000000,
+        "description": "After $50 spent"
+    },
+    "tier_3": {
+        "requests_per_minute": 5000,
+        "tokens_per_minute": 4000000,
+        "description": "After $100 spent"
+    },
+    "tier_4": {
+        "requests_per_minute": 10000,
+        "tokens_per_minute": 10000000,
+        "description": "After $1000 spent"
+    },
+    "tier_5": {
+        "requests_per_minute": 30000,
+        "tokens_per_minute": 150000000,
+        "description": "After $5000 spent"
+    }
+}
+
+# Azure OpenAI Rate Limits by Tier
+AZURE_RATE_LIMITS = {
+    "standard": {
+        "requests_per_minute": 2700,
+        "tokens_per_minute": 450000,
+        "description": "Default Azure OpenAI tier"
+    },
+    "data_zone_standard": {
+        "requests_per_minute": 6000,
+        "tokens_per_minute": 1000000,
+        "description": "Data Zone Standard tier"
+    },
+    "global_standard": {
+        "requests_per_minute": 12000,
+        "tokens_per_minute": 2000000,
+        "description": "Global Standard tier"
+    }
+}
+
+# Default conservative limits (lowest tier)
+DEFAULT_RATE_LIMITS = {
+    "requests_per_minute": 450,  # Conservative estimate
+    "tokens_per_minute": 200000,  # OpenAI Tier 1
+    "max_concurrent_requests": 12,
+    "safety_margin": 0.8  # Use only 80% of limits
+}
 
 # OpenAI API Configuration (from Streamlit secrets)
 def get_openai_api_key() -> str:
@@ -93,29 +149,72 @@ except Exception:
 # PROCESSING CONFIGURATION
 # ============================================================================
 
-# Batch processing settings for optimal performance (with secrets support)
-def get_batch_config() -> Dict[str, Any]:
-    """Get batch configuration from secrets with defaults"""
+def get_rate_limits() -> Dict[str, Any]:
+    """Get API rate limits based on provider and tier"""
+    provider = get_secret("API_PROVIDER", "openai").lower()
+    tier = get_secret("API_TIER", "tier_1").lower()
+    
+    if provider == "azure":
+        tier_data = AZURE_RATE_LIMITS.get(tier, AZURE_RATE_LIMITS["standard"])
+    else:
+        tier_data = OPENAI_RATE_LIMITS.get(tier, OPENAI_RATE_LIMITS["tier_1"])
+    
+    # Apply safety margin
+    safety_margin = DEFAULT_RATE_LIMITS["safety_margin"]
     return {
-        "batch_size": int(get_secret("MAX_BATCH_SIZE", "100")),
-        "max_concurrent_batches": int(get_secret("MAX_WORKERS", "12")),
-        "retry_attempts": 3,
-        "retry_delay": 1,
-        "rate_limit_delay": float(get_secret("RATE_LIMIT_DELAY", "0.5")),
-        "requests_per_minute": int(get_secret("REQUESTS_PER_MINUTE", "50"))
+        "requests_per_minute": int(tier_data["requests_per_minute"] * safety_margin),
+        "tokens_per_minute": int(tier_data["tokens_per_minute"] * safety_margin),
+        "max_concurrent_requests": min(
+            int(get_secret("MAX_WORKERS", "12")),
+            int(tier_data["requests_per_minute"] * safety_margin / 5)  # Conservative estimate
+        )
     }
 
-# Dynamic batch config
+# Batch processing settings for optimal performance (with secrets support)
+def get_batch_config() -> Dict[str, Any]:
+    """Get batch configuration from secrets with rate limit awareness"""
+    rate_limits = get_rate_limits()
+    
+    # Calculate safe batch size based on token limits
+    avg_tokens_per_comment = int(get_secret("AVG_TOKENS_PER_COMMENT", "150"))
+    prompt_tokens = int(get_secret("PROMPT_TOKENS", "800"))
+    max_tokens_per_request = int(get_secret("MAX_TOKENS_PER_REQUEST", "12000"))
+    
+    # Calculate max comments per batch to stay within token limits
+    available_tokens = max_tokens_per_request - prompt_tokens
+    safe_batch_size = min(
+        int(get_secret("MAX_BATCH_SIZE", "100")),
+        max(1, available_tokens // avg_tokens_per_comment)
+    )
+    
+    return {
+        "batch_size": safe_batch_size,
+        "max_concurrent_batches": rate_limits["max_concurrent_requests"],
+        "retry_attempts": 3,
+        "retry_delay": 1,
+        "rate_limit_delay": max(0.1, 60.0 / rate_limits["requests_per_minute"]),
+        "requests_per_minute": rate_limits["requests_per_minute"],
+        "tokens_per_minute": rate_limits["tokens_per_minute"],
+        "avg_tokens_per_comment": avg_tokens_per_comment,
+        "prompt_tokens": prompt_tokens,
+        "max_tokens_per_request": max_tokens_per_request
+    }
+
+# Dynamic batch config with rate limit awareness
 try:
     BATCH_CONFIG = get_batch_config()
 except Exception:
     BATCH_CONFIG = {
-        "batch_size": 100,
+        "batch_size": 50,  # Conservative fallback
         "max_concurrent_batches": 4,
         "retry_attempts": 3,
         "retry_delay": 1,
-        "rate_limit_delay": 0.5,
-        "requests_per_minute": 50
+        "rate_limit_delay": 2.0,  # Conservative fallback
+        "requests_per_minute": 30,  # Conservative fallback
+        "tokens_per_minute": 150000,
+        "avg_tokens_per_comment": 150,
+        "prompt_tokens": 800,
+        "max_tokens_per_request": 12000
     }
 
 # File processing limits
@@ -269,7 +368,10 @@ FEATURE_FLAGS = {
     "enable_export": True,             # File export functionality
     "enable_performance_monitoring": True,  # Performance tracking
     "enable_debug_mode": False,        # Debug information display
-    "enable_batch_progress": True      # Show batch processing progress
+    "enable_batch_progress": True,     # Show batch processing progress
+    "enable_rate_limit_monitoring": True,  # Track API usage
+    "enable_dynamic_batch_sizing": True,   # Adjust batch size based on usage
+    "enable_token_usage_logging": True     # Log token consumption
 }
 
 # ============================================================================
@@ -289,6 +391,7 @@ def get_app_config() -> Dict[str, Any]:
         "emotions": EMOTIONS_16,
         "emotion_categories": EMO_CATEGORIES,
         "batch_config": BATCH_CONFIG,
+        "rate_limits": get_rate_limits(),
         "file_config": FILE_CONFIG,
         "sla_targets": SLA_TARGETS,
         "chart_config": CHART_CONFIG,

@@ -167,7 +167,15 @@ class LLMApiClient:
         
         # Create mock emotion scores
         emotions = {}
-        from config import EMOTIONS_16
+        try:
+            from config import EMOTIONS_16
+        except ImportError:
+            EMOTIONS_16 = [
+                "alegria", "tristeza", "enojo", "miedo", "confianza", "desagrado", 
+                "sorpresa", "expectativa", "frustracion", "gratitud", "aprecio", 
+                "indiferencia", "decepcion", "entusiasmo", "verguenza", "esperanza"
+            ]
+        
         for emotion in EMOTIONS_16:
             if emotion in primary_emotions:
                 emotions[emotion] = random.uniform(0.6, 1.0)
@@ -183,7 +191,15 @@ class LLMApiClient:
     
     def _get_default_response(self) -> Dict[str, Any]:
         """Default response when parsing fails"""
-        from config import EMOTIONS_16
+        try:
+            from config import EMOTIONS_16
+        except ImportError:
+            EMOTIONS_16 = [
+                "alegria", "tristeza", "enojo", "miedo", "confianza", "desagrado", 
+                "sorpresa", "expectativa", "frustracion", "gratitud", "aprecio", 
+                "indiferencia", "decepcion", "entusiasmo", "verguenza", "esperanza"
+            ]
+        
         return {
             'emotions': {emotion: 0.0 for emotion in EMOTIONS_16},
             'pain_points': [],
