@@ -16,8 +16,9 @@ headless = true
 port = 8501
 enableXsrfProtection = true
 maxUploadSize = 50
-fileWatcherType = "auto"
-runOnSave = false
+# Production settings to prevent inotify limit errors
+fileWatcherType = "poll"  # Use polling instead of inotify to prevent OSError [Errno 24]
+runOnSave = false         # Disable hot reload in production
 
 [browser]
 # Browser settings

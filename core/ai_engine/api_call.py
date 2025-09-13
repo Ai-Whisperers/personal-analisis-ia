@@ -47,15 +47,15 @@ class LLMApiClient:
             self.usage_monitor = UsageMonitor(BATCH_CONFIG)
             logger.info(f"API client initialized: {BATCH_CONFIG.get('requests_per_minute', 'unknown')} RPM, {BATCH_CONFIG.get('tokens_per_minute', 'unknown')} TPM")
         except ImportError:
-            # Fallback configuration with conservative limits
+            # Fallback configuration with very conservative limits
             fallback_config = {
-                'requests_per_minute': 400,  # 80% of 500 (Tier 1)
-                'tokens_per_minute': 160000,  # 80% of 200k (Tier 1)
+                'requests_per_minute': 50,   # Much more conservative
+                'tokens_per_minute': 120000, # Reduced from 160k
                 'max_concurrent_batches': 3,
                 'avg_tokens_per_comment': 150,
                 'prompt_tokens': 800,
-                'max_tokens_per_request': 12000,
-                'batch_size': 50
+                'max_tokens_per_request': 8000,  # Reduced from 12k
+                'batch_size': 30  # Smaller batch size
             }
             self.config = fallback_config
             self.rate_limiter = RateLimiter(fallback_config)

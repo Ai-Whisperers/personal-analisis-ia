@@ -86,10 +86,10 @@ AZURE_RATE_LIMITS = {
 
 # Default conservative limits (lowest tier)
 DEFAULT_RATE_LIMITS = {
-    "requests_per_minute": 450,  # Conservative estimate
-    "tokens_per_minute": 200000,  # OpenAI Tier 1
-    "max_concurrent_requests": 12,
-    "safety_margin": 0.8  # Use only 80% of limits
+    "requests_per_minute": 60,  # Much more conservative to avoid 429s
+    "tokens_per_minute": 150000,  # Reduced from 200k
+    "max_concurrent_requests": 4,  # Reduced from 12 to 4
+    "safety_margin": 0.7  # Even more conservative safety margin
 }
 
 # OpenAI API Configuration (from Streamlit secrets)

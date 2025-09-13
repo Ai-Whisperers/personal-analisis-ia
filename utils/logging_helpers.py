@@ -107,7 +107,10 @@ class LoggingHelper:
             'openai': logging.INFO,
             'matplotlib': logging.WARNING,
             'plotly': logging.WARNING,
-            'streamlit': logging.WARNING
+            'streamlit': logging.WARNING,
+            'streamlit.runtime.scriptrunner': logging.ERROR,  # Suppress ScriptRunContext warnings
+            'streamlit.runtime.scriptrunner.script_runner': logging.ERROR,
+            'streamlit.runtime.scriptrunner.exec_code': logging.ERROR
         }
         
         for logger_name, log_level in library_configs.items():
