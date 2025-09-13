@@ -103,12 +103,12 @@ class DataCleaner:
         
         # For NPS: convert to numeric, handle invalid values
         if 'NPS' in df.columns:
-            df['NPS'] = pd.to_numeric(df['NPS'], errors='coerce')
+            df.loc[:, 'NPS'] = pd.to_numeric(df['NPS'], errors='coerce')
             # Don't drop NPS nulls here - handle in validation
         
         # For Nota: convert to numeric
         if 'Nota' in df.columns:
-            df['Nota'] = pd.to_numeric(df['Nota'], errors='coerce')
+            df.loc[:, 'Nota'] = pd.to_numeric(df['Nota'], errors='coerce')
         
         return df
     
