@@ -12,13 +12,16 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from config import APP_INFO, EMOTIONS_16, EMO_CATEGORIES, FEATURE_FLAGS
-from utils.streamlit_helpers import get_state_manager, create_metrics
+from utils.streamlit_helpers import get_state_manager, create_metrics, apply_glassmorphism_theme
 
 def main():
     """Landing page main function"""
     
-    # Page header
-    st.title("🎭 Bienvenido al Personal Comment Analyzer")
+    # Apply glassmorphism theme first (following Streamlit best practices)
+    apply_glassmorphism_theme()
+    
+    # Page header using native Streamlit components (preferred approach)
+    st.title("Bienvenido al Personal Comment Analyzer")
     st.markdown("### Tu herramienta de análisis de sentimientos basada en IA")
     
     # Hero section

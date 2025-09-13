@@ -1,0 +1,193 @@
+/* -*- coding: utf-8 -*- */
+/*
+ * Atomic Effect Classes
+ * Backdrop blur, shadows, and glass effects
+ */
+
+/* Backdrop Blur Effects */
+.backdrop-blur-none {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.backdrop-blur-sm {
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+}
+
+.backdrop-blur-md {
+  backdrop-filter: var(--glass-blur-md);
+  -webkit-backdrop-filter: var(--glass-blur-md);
+}
+
+.backdrop-blur-lg {
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+}
+
+.backdrop-blur-xl {
+  backdrop-filter: var(--glass-blur-xl);
+  -webkit-backdrop-filter: var(--glass-blur-xl);
+}
+
+/* Box Shadows */
+.shadow-none {
+  box-shadow: none;
+}
+
+.shadow-glass {
+  box-shadow: var(--shadow-glass);
+}
+
+.shadow-glass-hover {
+  box-shadow: var(--shadow-glass-hover);
+}
+
+.shadow-glass-lg {
+  box-shadow: var(--shadow-glass-lg);
+}
+
+/* Interactive Shadow States */
+.shadow-glass-interactive {
+  box-shadow: var(--shadow-glass);
+  transition: box-shadow var(--duration-normal) var(--ease-out);
+}
+
+.shadow-glass-interactive:hover {
+  box-shadow: var(--shadow-glass-hover);
+}
+
+/* Inset Shadows for Depth */
+.shadow-inset-glass {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.shadow-inset-glass-lg {
+  box-shadow: 
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Transform Effects */
+.transform-none {
+  transform: none;
+}
+
+.translate-y-0 {
+  transform: translateY(0);
+}
+
+.translate-y-1 {
+  transform: translateY(-0.25rem);
+}
+
+.translate-y-2 {
+  transform: translateY(-0.5rem);
+}
+
+.scale-100 {
+  transform: scale(1);
+}
+
+.scale-105 {
+  transform: scale(1.05);
+}
+
+.scale-110 {
+  transform: scale(1.1);
+}
+
+/* Hover Transform Effects */
+.hover-lift:hover {
+  transform: translateY(-2px);
+}
+
+.hover-scale:hover {
+  transform: scale(1.02);
+}
+
+.hover-scale-lg:hover {
+  transform: scale(1.05);
+}
+
+/* Opacity Effects */
+.opacity-0 {
+  opacity: 0;
+}
+
+.opacity-50 {
+  opacity: 0.5;
+}
+
+.opacity-75 {
+  opacity: 0.75;
+}
+
+.opacity-100 {
+  opacity: 1;
+}
+
+/* Glass Shine Effect */
+.glass-shine {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-shine::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  transition: left var(--duration-slow) var(--ease-out);
+}
+
+.glass-shine:hover::before {
+  left: 100%;
+}
+
+/* Glass Edge Highlight */
+.glass-edge-highlight::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.4),
+    transparent
+  );
+}
+
+/* Frosted Glass Effect */
+.frosted-glass {
+  backdrop-filter: var(--glass-blur-lg) saturate(180%);
+  -webkit-backdrop-filter: var(--glass-blur-lg) saturate(180%);
+}
+
+/* Filter Effects */
+.brightness-50 {
+  filter: brightness(0.5);
+}
+
+.brightness-75 {
+  filter: brightness(0.75);
+}
+
+.brightness-100 {
+  filter: brightness(1);
+}
+
+.brightness-125 {
+  filter: brightness(1.25);
+}

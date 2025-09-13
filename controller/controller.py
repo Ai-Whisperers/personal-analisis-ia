@@ -7,6 +7,7 @@ from typing import Dict, Any, Optional
 import tempfile
 import os
 from pathlib import Path
+import pandas as pd
 
 from .interfaces import IPipelineRunner, IStateManager, IProgressTracker
 from .state_manager import StreamlitStateManager 
@@ -42,7 +43,15 @@ class PipelineController(IPipelineRunner):
             api_key=api_key,
             mock_mode=is_mock_mode()
         )
-        self.engine_controller = EngineController(self.api_client)
+        
+        # Get batch configuration from config
+        try:
+            from config import BATCH_CONFIG
+            batch_config = BATCH_CONFIG
+        except ImportError:
+            batch_config = {}
+        
+        self.engine_controller = EngineController(self.api_client, batch_config)
         
         logger.info("Pipeline controller initialized")
     

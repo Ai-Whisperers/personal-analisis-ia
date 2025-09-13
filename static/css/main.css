@@ -1,0 +1,223 @@
+/* -*- coding: utf-8 -*- */
+/*
+ * Main CSS Entry Point
+ * Personal Comment Analyzer - Modular Glassmorphism Architecture
+ * 
+ * This file imports all CSS modules in the correct cascade order
+ * following Streamlit best practices and our atomic design system
+ */
+
+/* ================================
+   1. Base Layer - Foundation
+   ================================ */
+
+/* CSS Variables and Design System Tokens */
+@import url('./base/variables.css');
+
+/* CSS Reset and Normalization */  
+@import url('./base/reset.css');
+
+/* ================================
+   2. Atomic Layer - Granular Classes
+   ================================ */
+
+/* Background Effects */
+@import url('./atoms/backgrounds.css');
+
+/* Border and Radius Utilities */
+@import url('./atoms/borders.css');
+
+/* Backdrop Blur and Glass Effects */
+@import url('./atoms/effects.css');
+
+/* Spacing Utilities (padding, margin, gap) */
+@import url('./atoms/spacing.css');
+
+/* Typography and Text Styling */
+@import url('./atoms/typography.css');
+
+/* ================================
+   3. Molecular Layer - Component Combinations
+   ================================ */
+
+/* Card Components and Variations */
+@import url('./molecules/cards.css');
+
+/* Layout Patterns and Containers */
+@import url('./molecules/layouts.css');
+
+/* ================================
+   4. Streamlit Integration Layer
+   ================================ */
+
+/* Core Streamlit Component Overrides */
+@import url('./streamlit/core.css');
+
+/* ================================
+   Global Application Styles
+   ================================ */
+
+/* Performance optimizations for glassmorphism */
+* {
+  /* Improve rendering performance with hardware acceleration */
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  
+  /* Better text rendering */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+/* Smooth scrolling for the entire application */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Focus management for accessibility */
+.focus-visible {
+  outline: 2px solid var(--st-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+/* Global animation classes */
+.animate-fade-in {
+  animation: fadeIn 0.6s var(--ease-out) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s var(--ease-out) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.4s var(--ease-out) forwards;
+}
+
+/* Keyframe definitions */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to { 
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Utility classes for quick usage */
+.glass-shine-hover:hover {
+  position: relative;
+  overflow: hidden;
+}
+
+.glass-shine-hover:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.1),
+    transparent
+  );
+  animation: shine 0.6s ease-out;
+}
+
+@keyframes shine {
+  to { left: 100%; }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --glass-bg-primary: rgba(255, 255, 255, 0.2);
+    --glass-bg-secondary: rgba(255, 255, 255, 0.3);
+    --glass-border: rgba(255, 255, 255, 0.4);
+    --st-text: #ffffff;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .animate-fade-in,
+  .animate-fade-in-up,
+  .animate-scale-in,
+  .glass-shine-hover:hover::after {
+    animation: none !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  
+  .print-only {
+    display: block !important;
+  }
+  
+  * {
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+}
+
+/* Mobile-first responsive adjustments */
+@media (max-width: 480px) {
+  .glass-card,
+  .glass-container,
+  .glass-section {
+    border-radius: var(--radius-md);
+    padding: var(--space-3);
+  }
+}
+
+/* CSS Architecture Documentation
+   
+   This CSS follows atomic design principles:
+   
+   1. ATOMS: Single-purpose classes (.bg-glass, .p-4, .rounded-lg)
+   2. MOLECULES: Component combinations (.glass-card, .glass-metric-card)  
+   3. ORGANISMS: Page sections (imported from organism files when needed)
+   4. STREAMLIT: Integration layer for Streamlit components
+   
+   Benefits:
+   - Maintainable: Each file < 150 lines
+   - Reusable: Atomic classes can be combined flexibly
+   - Performance: Minimal CSS bundle, optimized for glassmorphism
+   - Secure: No unsafe HTML injection, uses st.html()
+   - Compatible: Works with Streamlit's component system
+*/

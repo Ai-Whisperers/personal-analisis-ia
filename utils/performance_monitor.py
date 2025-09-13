@@ -10,6 +10,7 @@ from typing import Dict, List, Any, Optional, Callable
 from dataclasses import dataclass
 from datetime import datetime
 import threading
+from contextlib import contextmanager
 
 logger = logging.getLogger(__name__)
 
@@ -296,6 +297,38 @@ class PerformanceMonitor:
         with self.lock:
             self.metrics.clear()
         logger.info("Performance metrics reset")
+    
+    def __call__(self, section_name: str):
+        """Make PerformanceMonitor callable for context manager usage"""
+        return self.section(section_name)
+    
+    @contextmanager
+    def section(self, section_name: str):
+        """Context manager for measuring execution time of code sections"""
+        start_time = time.time()
+        logger.debug(f"Performance section started: {section_name}")
+        
+        try:
+            yield
+        finally:
+            end_time = time.time()
+            duration = end_time - start_time
+            
+            # Create metric
+            metric = PerformanceMetric(
+                function_name=f"section.{section_name}",
+                duration=duration,
+                timestamp=datetime.now(),
+                success=True,
+                metadata={'section_type': 'manual_timing'}
+            )
+            
+            # Store metric thread-safely
+            with self.lock:
+                self.metrics.append(metric)
+            
+            # Log performance
+            logger.info(f"Performance section '{section_name}' completed in {duration:.3f}s")
     
     def export_metrics(self) -> Dict[str, Any]:
         """Export metrics for external analysis"""

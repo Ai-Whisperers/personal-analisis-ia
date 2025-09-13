@@ -17,23 +17,23 @@ from ..file_processor import reader, cleaner, validator, normalizer
 
 logger = logging.getLogger(__name__)
 
-# Import configuration - this will be dynamic based on secrets
-try:
-    from config import BATCH_CONFIG
-    MAX_WORKERS = BATCH_CONFIG.get('max_concurrent_batches', 4)
-except ImportError:
-    MAX_WORKERS = 4  # Fallback
+# Default configuration - can be overridden via constructor
+DEFAULT_CONFIG = {
+    'batch_size': 100,
+    'max_concurrent_batches': 4
+}
 
 class EngineController:
     """Main orchestrator for the analysis pipeline"""
     
-    def __init__(self, api_client: LLMApiClient):
+    def __init__(self, api_client: LLMApiClient, config: Dict[str, Any] = None):
         self.api_client = api_client
+        self.config = {**DEFAULT_CONFIG, **(config or {})}
         self.emotion_analyzer = EmotionAnalyzer()
         self.pain_analyzer = PainPointsAnalyzer()
         self.churn_analyzer = ChurnAnalyzer()
         self.nps_analyzer = NPSAnalyzer()
-        self.batch_size = BATCH_CONFIG.get('batch_size', 100)  # Use configuration
+        self.batch_size = self.config['batch_size']
     
     def run_pipeline(self, file_path: str) -> pd.DataFrame:
         """Main pipeline execution"""
@@ -70,8 +70,9 @@ class EngineController:
     def _process_batches_parallel(self, batches: List[pd.DataFrame]) -> List[Dict[str, Any]]:
         """Process all batches in parallel using ThreadPoolExecutor"""
         results = []
+        max_workers = self.config['max_concurrent_batches']
         
-        with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
             future_to_batch = {
                 executor.submit(self._process_single_batch, batch): batch 
                 for batch in batches

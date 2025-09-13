@@ -14,6 +14,21 @@ from .interfaces import IProgressTracker
 from utils.logging_helpers import get_logger
 from utils.performance_monitor import monitor
 
+# DEBUG: Log monitor details to identify deployment issue
+import logging
+debug_logger = logging.getLogger("MONITOR_DEBUG")
+debug_logger.info(f"Monitor type: {type(monitor)}")
+debug_logger.info(f"Monitor has __call__: {hasattr(monitor, '__call__')}")
+debug_logger.info(f"Monitor callable: {callable(monitor)}")
+
+# Test the call immediately
+try:
+    test_cm = monitor("initialization_test")
+    debug_logger.info(f"Monitor call successful, returns: {type(test_cm)}")
+except Exception as e:
+    debug_logger.error(f"CRITICAL: Monitor call failed during import: {e}")
+    # Don't raise here, let it fail later with more context
+
 logger = get_logger(__name__)
 
 class PipelineStatus(Enum):
@@ -105,6 +120,10 @@ class BackgroundPipelineRunner:
                     self.progress_tracker.reset_progress()
                 
                 # Execute pipeline with monitoring
+                # DEBUG: Final verification before critical usage
+                debug_logger.info(f"About to use monitor for complete_pipeline")
+                debug_logger.info(f"Monitor at runtime: type={type(monitor)}, callable={callable(monitor)}")
+                
                 with monitor("complete_pipeline"):
                     results = pipeline_func(file_path)
                 

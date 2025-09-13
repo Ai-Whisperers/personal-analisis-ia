@@ -2,12 +2,12 @@
 # Following Streamlit 2025 documentation: https://docs.streamlit.io/develop/api-reference/configuration/config.toml
 
 [theme]
-# Theme colors matching project design
+# Glassmorphism-inspired theme for Personal Comment Analyzer
 base = "dark"
-primaryColor = "#667eea"
-backgroundColor = "#0b1220"
-secondaryBackgroundColor = "#0f172a"
-textColor = "#e2e8f0"
+primaryColor = "#8B5CF6"          # Purple accent for glassmorphism
+backgroundColor = "#0F172A"        # Deep slate background  
+secondaryBackgroundColor = "#1E293B"  # Lighter slate for cards
+textColor = "#F1F5F9"             # Light text for contrast
 font = "sans serif"
 
 [server]

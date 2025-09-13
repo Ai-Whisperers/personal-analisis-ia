@@ -1,0 +1,93 @@
+/* -*- coding: utf-8 -*- */
+/*
+ * Atomic Background Classes
+ * Glass morphism background effects
+ */
+
+/* Base Glass Backgrounds */
+.bg-glass {
+  background: var(--glass-bg-primary);
+}
+
+.bg-glass-secondary {
+  background: var(--glass-bg-secondary);
+}
+
+.bg-glass-accent {
+  background: var(--glass-bg-accent);
+}
+
+/* Status Glass Backgrounds */
+.bg-glass-success {
+  background: var(--glass-bg-success);
+}
+
+.bg-glass-warning {
+  background: var(--glass-bg-warning);
+}
+
+.bg-glass-danger {
+  background: var(--glass-bg-danger);
+}
+
+/* Gradient Glass Backgrounds */
+.bg-glass-gradient {
+  background: linear-gradient(135deg, 
+    var(--glass-bg-primary), 
+    var(--glass-bg-secondary)
+  );
+}
+
+.bg-glass-gradient-accent {
+  background: linear-gradient(135deg,
+    var(--glass-bg-accent),
+    rgba(139, 92, 246, 0.08)
+  );
+}
+
+/* Hover States */
+.bg-glass-hover:hover {
+  background: var(--glass-bg-secondary);
+}
+
+.bg-glass-secondary-hover:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.bg-glass-accent-hover:hover {
+  background: rgba(139, 92, 246, 0.25);
+}
+
+/* Interactive States */
+.bg-glass-active {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.bg-glass-disabled {
+  background: rgba(255, 255, 255, 0.04);
+  opacity: 0.5;
+}
+
+/* Backdrop Variations */
+.bg-glass-subtle {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.bg-glass-prominent {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+/* Theme Responsive Backgrounds */
+@media (prefers-color-scheme: light) {
+  .bg-glass {
+    background: rgba(0, 0, 0, 0.08);
+  }
+  
+  .bg-glass-secondary {
+    background: rgba(0, 0, 0, 0.12);
+  }
+  
+  .bg-glass-accent {
+    background: rgba(139, 92, 246, 0.1);
+  }
+}

@@ -1,0 +1,221 @@
+/* -*- coding: utf-8 -*- */
+/*
+ * Streamlit Core Component Overrides
+ * Minimal overrides for glassmorphism integration
+ */
+
+/* Streamlit Container Enhancements */
+.stContainer > div {
+  background: var(--glass-bg-primary);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: var(--space-4);
+  margin: var(--space-2) 0;
+}
+
+/* Streamlit Columns Glass Effect */
+.stColumns > div > div {
+  background: var(--glass-bg-primary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: var(--space-3);
+  margin: var(--space-1);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.stColumns > div > div:hover {
+  background: var(--glass-bg-secondary);
+  border-color: var(--glass-border-hover);
+  transform: translateY(-1px);
+}
+
+/* Streamlit Metric Cards */
+.stMetric {
+  background: var(--glass-bg-accent);
+  border: 1px solid var(--glass-border-accent);
+  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: var(--space-4);
+  text-align: center;
+  transition: all var(--duration-normal) var(--ease-out);
+}
+
+.stMetric:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 12px rgba(139, 92, 246, 0.15);
+}
+
+/* Streamlit Metric Values */
+.stMetric .metric-value {
+  font-size: var(--text-2xl);
+  font-weight: var(--font-bold);
+  color: var(--st-text);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.stMetric .metric-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-medium);
+  color: rgba(241, 245, 249, 0.7);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* Streamlit Sidebar Enhancement */
+.stSidebar > div {
+  background: linear-gradient(180deg,
+    var(--glass-bg-primary),
+    var(--glass-bg-secondary)
+  );
+  backdrop-filter: var(--glass-blur-md);
+  -webkit-backdrop-filter: var(--glass-blur-md);
+  border-right: 1px solid var(--glass-border);
+}
+
+/* Streamlit Header Enhancement */
+.stHeader {
+  background: var(--glass-bg-primary);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+  border-bottom: 1px solid var(--glass-border);
+}
+
+/* Streamlit Expandable Sections */
+.stExpander {
+  background: var(--glass-bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  margin: var(--space-2) 0;
+  overflow: hidden;
+}
+
+.stExpander summary {
+  background: rgba(255, 255, 255, 0.05);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--glass-border);
+  cursor: pointer;
+  transition: background var(--duration-fast) var(--ease-out);
+}
+
+.stExpander summary:hover {
+  background: var(--glass-bg-secondary);
+}
+
+.stExpander .expandable-content {
+  padding: var(--space-4);
+}
+
+/* Streamlit Tabs Enhancement */
+.stTabs .tab-list {
+  background: var(--glass-bg-primary);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  border: 1px solid var(--glass-border);
+  border-bottom: none;
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+}
+
+.stTabs .tab-content {
+  background: var(--glass-bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: var(--space-6);
+}
+
+.stTabs .tab {
+  background: transparent;
+  border: none;
+  padding: var(--space-3) var(--space-6);
+  color: rgba(241, 245, 249, 0.7);
+  transition: all var(--duration-fast) var(--ease-out);
+}
+
+.stTabs .tab:hover {
+  background: var(--glass-bg-secondary);
+  color: var(--st-text);
+}
+
+.stTabs .tab.active {
+  background: var(--glass-bg-accent);
+  color: var(--st-text);
+  border-bottom: 2px solid var(--st-primary);
+}
+
+/* Streamlit Alert Enhancement */
+.stAlert {
+  background: var(--glass-bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+  padding: var(--space-4);
+  margin: var(--space-2) 0;
+}
+
+.stAlert.success {
+  background: var(--glass-bg-success);
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.stAlert.warning {
+  background: var(--glass-bg-warning);
+  border-color: rgba(251, 191, 36, 0.3);
+}
+
+.stAlert.error {
+  background: var(--glass-bg-danger);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.stAlert.info {
+  background: var(--glass-bg-accent);
+  border-color: var(--glass-border-accent);
+}
+
+/* Streamlit Progress Bar */
+.stProgress .progress-bar {
+  background: linear-gradient(135deg, 
+    var(--st-primary), 
+    rgba(34, 197, 94, 0.8)
+  );
+  border-radius: var(--radius-sm);
+  box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+
+.stProgress .progress-container {
+  background: var(--glass-bg-primary);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-sm);
+  backdrop-filter: var(--glass-blur-sm);
+  -webkit-backdrop-filter: var(--glass-blur-sm);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .stContainer > div {
+    padding: var(--space-3);
+    margin: var(--space-1) 0;
+  }
+  
+  .stColumns > div > div {
+    padding: var(--space-2);
+    margin: var(--space-1) 0;
+  }
+  
+  .stMetric {
+    padding: var(--space-3);
+  }
+  
+  .stTabs .tab {
+    padding: var(--space-2) var(--space-4);
+  }
+}

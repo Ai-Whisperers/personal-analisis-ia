@@ -1,0 +1,135 @@
+/* -*- coding: utf-8 -*- */
+/*
+ * Atomic Border Classes
+ * Glass morphism border effects
+ */
+
+/* Border Styles */
+.border-glass {
+  border: 1px solid var(--glass-border);
+}
+
+.border-glass-accent {
+  border: 1px solid var(--glass-border-accent);
+}
+
+.border-glass-success {
+  border: 1px solid rgba(34, 197, 94, 0.3);
+}
+
+.border-glass-warning {
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.border-glass-danger {
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Border Widths */
+.border-0 {
+  border-width: 0;
+}
+
+.border-1 {
+  border-width: 1px;
+}
+
+.border-2 {
+  border-width: 2px;
+}
+
+/* Border Radius */
+.rounded-none {
+  border-radius: 0;
+}
+
+.rounded-sm {
+  border-radius: var(--radius-sm);
+}
+
+.rounded-md {
+  border-radius: var(--radius-md);
+}
+
+.rounded-lg {
+  border-radius: var(--radius-lg);
+}
+
+.rounded-xl {
+  border-radius: var(--radius-xl);
+}
+
+.rounded-2xl {
+  border-radius: var(--radius-2xl);
+}
+
+.rounded-3xl {
+  border-radius: var(--radius-3xl);
+}
+
+.rounded-full {
+  border-radius: 9999px;
+}
+
+/* Individual Corner Radius */
+.rounded-t-lg {
+  border-top-left-radius: var(--radius-lg);
+  border-top-right-radius: var(--radius-lg);
+}
+
+.rounded-b-lg {
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+.rounded-l-lg {
+  border-top-left-radius: var(--radius-lg);
+  border-bottom-left-radius: var(--radius-lg);
+}
+
+.rounded-r-lg {
+  border-top-right-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+}
+
+/* Border Directional */
+.border-t-glass {
+  border-top: 1px solid var(--glass-border);
+}
+
+.border-b-glass {
+  border-bottom: 1px solid var(--glass-border);
+}
+
+.border-l-glass {
+  border-left: 1px solid var(--glass-border);
+}
+
+.border-r-glass {
+  border-right: 1px solid var(--glass-border);
+}
+
+/* Hover States */
+.border-glass-hover:hover {
+  border-color: var(--glass-border-hover);
+}
+
+.border-glass-accent-hover:hover {
+  border-color: rgba(139, 92, 246, 0.5);
+}
+
+/* Focus States */
+.border-glass-focus:focus-visible {
+  border-color: var(--st-primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.2);
+}
+
+/* Interactive States */
+.border-glass-active {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.border-glass-disabled {
+  border-color: rgba(255, 255, 255, 0.1);
+  opacity: 0.5;
+}

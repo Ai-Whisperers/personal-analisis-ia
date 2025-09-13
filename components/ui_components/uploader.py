@@ -49,7 +49,7 @@ class FileUploader:
                 temp_path = self._save_temp_file(uploaded_file)
                 
                 # Validate file
-                file_info = reader.reader.get_file_info(temp_path)
+                file_info = reader.get_file_info(temp_path)
                 
                 if 'error' in file_info:
                     st.error(f"[ERROR] Error al leer el archivo: {file_info['error']}")

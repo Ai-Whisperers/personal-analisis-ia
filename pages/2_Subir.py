@@ -23,10 +23,17 @@ from components.ui_components.uploader import render_file_uploader
 from components.ui_components.chart_generator import render_analysis_charts
 from components.ui_components.report_exporter import render_export_section
 
+# Import glassmorphism theme
+from utils.streamlit_helpers import apply_glassmorphism_theme
+
 logger = get_logger(__name__)
 
 def main():
     """Main upload and analysis page"""
+    
+    # Apply glassmorphism theme first (following Streamlit best practices)
+    apply_glassmorphism_theme()
+    
     st.title("Subir y Analizar Comentarios")
     st.markdown("Sube tu archivo Excel y ejecuta el análisis de sentimientos")
     

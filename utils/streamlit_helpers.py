@@ -8,43 +8,15 @@ from typing import Any, Dict, Optional, Callable, List
 from contextlib import contextmanager
 import logging
 
-from core.progress.state_iface import StateManager, StateInterface
+from controller.state_manager import StreamlitStateManager
 
 logger = logging.getLogger(__name__)
-
-class StreamlitStateInterface(StateInterface):
-    """Streamlit session state implementation of StateInterface"""
-    
-    def get(self, key: str, default: Any = None) -> Any:
-        """Get value from Streamlit session state"""
-        return st.session_state.get(key, default)
-    
-    def set(self, key: str, value: Any) -> None:
-        """Set value in Streamlit session state"""
-        st.session_state[key] = value
-    
-    def delete(self, key: str) -> None:
-        """Delete key from Streamlit session state"""
-        if key in st.session_state:
-            del st.session_state[key]
-    
-    def exists(self, key: str) -> bool:
-        """Check if key exists in Streamlit session state"""
-        return key in st.session_state
-    
-    def clear(self) -> None:
-        """Clear all Streamlit session state"""
-        st.session_state.clear()
-    
-    def get_all(self) -> Dict[str, Any]:
-        """Get all session state as dictionary"""
-        return dict(st.session_state)
 
 class StreamlitHelpers:
     """Helper functions for Streamlit UI operations"""
     
     def __init__(self):
-        self.state_manager = StateManager(StreamlitStateInterface())
+        self.state_manager = StreamlitStateManager()
     
     @contextmanager
     def status_container(self, message: str, expanded: bool = False):
@@ -323,7 +295,51 @@ class StreamlitHelpers:
             mime=mime_type
         )
     
-    def get_state_manager(self) -> StateManager:
+    def inject_custom_css(self) -> None:
+        """
+        Inject CSS using st.html() - SAFER than unsafe_allow_html
+        Follows Streamlit best practices for custom styling
+        """
+        from pathlib import Path
+        
+        css_path = Path(__file__).parent.parent / "static" / "css" / "main.css"
+        
+        if not css_path.exists():
+            logger.warning(f"CSS file not found: {css_path}")
+            return
+            
+        try:
+            with open(css_path, 'r', encoding='utf-8') as f:
+                css_content = f.read()
+            
+            # Use st.html() instead of st.markdown with unsafe_allow_html
+            # This provides DOMPurify sanitization and better security
+            st.html(f"<style>{css_content}</style>")
+            logger.info("Custom CSS injected successfully via st.html()")
+            
+        except Exception as e:
+            logger.error(f"Error injecting CSS: {e}")
+    
+    def apply_glassmorphism_theme(self) -> None:
+        """
+        Apply glassmorphism theme following Streamlit best practices
+        Primary: .streamlit/config.toml theming
+        Secondary: Custom CSS via st.html() for advanced effects
+        """
+        # Primary theming is handled by .streamlit/config.toml
+        # This function applies additional CSS for glassmorphism effects
+        # that can't be achieved with native Streamlit theming
+        
+        self.inject_custom_css()
+        
+        # Add meta viewport for responsive design
+        st.html("""
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        """)
+        
+        logger.info("Glassmorphism theme applied successfully")
+    
+    def get_state_manager(self) -> StreamlitStateManager:
         """Get the state manager instance"""
         return self.state_manager
 
@@ -331,7 +347,7 @@ class StreamlitHelpers:
 helpers = StreamlitHelpers()
 
 # Convenience functions
-def get_state_manager() -> StateManager:
+def get_state_manager() -> StreamlitStateManager:
     """Get Streamlit-backed state manager"""
     return helpers.get_state_manager()
 
@@ -346,3 +362,11 @@ def show_error(message: str, details: Optional[str] = None) -> None:
 def create_metrics(metrics: Dict[str, Any]) -> None:
     """Create metric cards"""
     helpers.create_metric_cards(metrics)
+
+def apply_glassmorphism_theme() -> None:
+    """Apply glassmorphism theme to current page"""
+    helpers.apply_glassmorphism_theme()
+
+def inject_css() -> None:
+    """Inject custom CSS to current page"""
+    helpers.inject_custom_css()
