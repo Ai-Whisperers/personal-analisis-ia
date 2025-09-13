@@ -67,6 +67,20 @@ class DataCleaner:
             'feedback': 'Comentario Final'
         }
         
+        # Handle exact column name replacements first (case sensitive)
+        exact_replacements = {
+            'Comentario Final Final': 'Comentario Final',
+            'Comentario Final Limpio': 'Comentario Final',
+            'Comentario Final Procesado': 'Comentario Final'
+        }
+        
+        # Apply exact replacements
+        for old_col, new_col in exact_replacements.items():
+            if old_col in df.columns:
+                df = df.rename(columns={old_col: new_col})
+                logger.info(f"Renamed column '{old_col}' to '{new_col}'")
+        
+        # Then apply case-insensitive replacements
         for old_name, new_name in column_mapping.items():
             df.columns = df.columns.str.replace(old_name, new_name, case=False)
         
