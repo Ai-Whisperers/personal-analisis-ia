@@ -14,6 +14,8 @@ Archivo Excel (.xlsx, .xls) o CSV con las columnas:
 - **Nota**: Calificación del cliente  
 - **Comentario Final**: Texto del comentario a analizar
 
+**ℹ️ Nota**: El sistema maneja automáticamente variaciones en nombres de columnas como "Comentario Final Final", "comentario", "feedback", etc.
+
 ### ¿Cuántos comentarios puede procesar?
 - **Óptimo**: 800-1200 comentarios (≤10 segundos)
 - **Máximo**: 50,000 comentarios

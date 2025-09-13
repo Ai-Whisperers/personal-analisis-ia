@@ -21,6 +21,8 @@ Sistema de análisis de sentimientos de comentarios usando IA con 16 emociones e
 - **Procesamiento paralelo**: ThreadPoolExecutor con batches ≤100
 - **Modo Mock**: Funciona sin API key para pruebas
 - **Exportación**: Excel, CSV, JSON
+- **CSS Modular**: Sistema glassmorphism con @import resolver ✅
+- **Column Mapping**: Normalización automática de nombres de columnas ✅
 
 ## 🚀 **Quick Start**
 
@@ -55,6 +57,8 @@ Excel (.xlsx, .xls) o CSV con columnas:
 - **NPS**: Puntuación 0-10
 - **Nota**: Calificación del cliente  
 - **Comentario Final**: Texto del comentario a analizar
+
+📝 **Nota**: El sistema maneja automáticamente variaciones en nombres como "Comentario Final Final", "comentario", "feedback", etc.
 
 ## 🏗️ **Arquitectura**
 
@@ -192,4 +196,10 @@ MIT License - Ver [LICENSE](LICENSE) para detalles.
 
 ---
 
-**Desarrollado por AI Whisperers** | v2.0.0
+**Desarrollado por AI Whisperers** | v2.0.1
+
+### 🆕 **Changelog Reciente**
+- ✅ **CSS Fix**: Resolver @import statements para glassmorphism completo
+- ✅ **Column Mapping**: Manejo robusto de variaciones en nombres de columnas  
+- ✅ **Path Imports**: Corrección de imports faltantes
+- ✅ **Validator Enhancement**: Normalización automática mejorada

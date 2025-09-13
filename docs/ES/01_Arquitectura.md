@@ -1,6 +1,6 @@
 # Arquitectura del Sistema
 
-## Reglas Anti-Overengineering
+## Reglas Anti-Overengineering ✅
 
 1. **UI solo en `pages/` + `static/`** (sin lógica de negocio)
 2. **Lógica en `core/`** (completamente separada de Streamlit)
@@ -8,6 +8,12 @@
 4. **Concurrencia paralela** en `core/ai_engine/api_call.py` usando ThreadPoolExecutor
 5. **Estado/caché** manejado en UI layer (session_state, cache_data/resource)
 6. **SLA**: ≤10s P50 para 800-1200 filas (monitoreo en `utils/performance_monitor.py`)
+
+### Fixes Implementados Recientemente
+- **CSS Modular**: Resolver @import statements para glassmorphism completo
+- **Column Mapping**: Normalización automática de nombres de columnas ('Comentario Final Final' → 'Comentario Final')
+- **Path Imports**: Corrección de imports faltantes en streamlit_helpers
+- **Validator Enhancement**: Manejo robusto de variaciones en nombres de columnas
 
 ## Estructura del Proyecto
 

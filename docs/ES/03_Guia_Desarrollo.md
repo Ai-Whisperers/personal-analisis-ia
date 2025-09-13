@@ -2,16 +2,17 @@
 
 ## Estándares del Código
 
-### 1. **Límites por Archivo** 
+### 1. **Límites por Archivo** ✅
 - **≤480 líneas por archivo** (máximo estricto)
-- **Estado actual**: Todos los archivos cumplen (máximo 371 líneas)
+- **Estado actual**: Todos los archivos cumplen (verificado 2025-09-12)
 - Si un archivo excede, debe dividirse en módulos
 - Usar herramientas como `wc -l *.py` para verificar
 
-**Archivos actuales más grandes:**
-- `components/ui_components/chart_generator.py`: 371 líneas ✅
-- `pages/2_Subir.py`: 371 líneas ✅  
-- `utils/performance_monitor.py`: 353 líneas ✅
+**Archivos principales mantenidos bajo límite:**
+- `components/ui_components/chart_generator.py`: < 400 líneas ✅
+- `pages/2_Subir.py`: < 400 líneas ✅  
+- `utils/streamlit_helpers.py`: Expandido con CSS resolver pero mantenido bajo límite ✅
+- `core/file_processor/cleaner.py`: Mejorado con column mapping ✅
 
 ### 2. **Imports Cíclicos**
 ```python

@@ -38,6 +38,14 @@ flowchart TD
 ## Etapas Detalladas
 
 ### 1. 📂 **Carga de Archivo**
+
+**Input**: Excel/CSV con columnas: `NPS`, `Nota`, `Comentario Final`
+- **Reader**: `core/file_processor/reader.py` - Lee el archivo
+- **Cleaner**: `core/file_processor/cleaner.py` - Normaliza columnas (ej: 'Comentario Final Final' → 'Comentario Final')
+- **Validator**: `core/file_processor/validator.py` - Valida estructura y calidad
+- **Normalizer**: `core/file_processor/normalizer.py` - Limpieza de texto
+
+**Output**: DataFrame limpio y validado
 **Ubicación**: `components/ui_components/uploader.py`
 
 ```python
