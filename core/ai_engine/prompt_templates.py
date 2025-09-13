@@ -51,19 +51,43 @@ Proporciona tu análisis en formato JSON con:
 
 Responde únicamente con el JSON, sin explicaciones adicionales."""
     
-    def get_batch_prompt(self, comments: list) -> str:
-        """Generate prompt for batch processing (if needed)"""
-        comments_text = "\n".join([f"{i+1}. {comment}" for i, comment in enumerate(comments)])
+    def get_batch_analysis_prompt(self, comments: list) -> str:
+        """Generate optimized prompt for batch processing with clear separators"""
+        # Create numbered list with clear separators
+        comments_text = ""
+        for i, comment in enumerate(comments, 1):
+            comments_text += f"COMENTARIO_{i}: {comment}\n"
+            if i < len(comments):
+                comments_text += "---\n"
         
-        return f"""Analiza los siguientes comentarios de clientes:
+        return f"""Analiza TODOS los siguientes {len(comments)} comentarios de clientes y proporciona el análisis completo para cada uno.
 
 {comments_text}
 
-Para cada comentario, proporciona el análisis en formato JSON array:
+INSTRUCCIONES CRÍTICAS:
+1. Analiza cada comentario individualmente
+2. Proporciona exactamente {len(comments)} análisis en el JSON array
+3. Mantén el orden exacto de los comentarios
+4. Para cada comentario incluye TODAS las 16 emociones con valores 0-1
+
+Formato de respuesta - JSON array con exactamente {len(comments)} elementos:
 [
-  {{"comment_id": 1, "emotions": {{"alegria": 0.8, ...}}, "pain_points": [...], "churn_risk": 0.3, "sentiment": "positive"}},
-  {{"comment_id": 2, ...}},
-  ...
+  {{
+    "emotions": {{
+      "alegria": 0.0, "tristeza": 0.0, "enojo": 0.0, "miedo": 0.0,
+      "confianza": 0.0, "desagrado": 0.0, "sorpresa": 0.0, "expectativa": 0.0,
+      "frustracion": 0.0, "gratitud": 0.0, "aprecio": 0.0, "indiferencia": 0.0,
+      "decepcion": 0.0, "entusiasmo": 0.0, "verguenza": 0.0, "esperanza": 0.0
+    }},
+    "pain_points": ["punto1", "punto2"],
+    "churn_risk": 0.5,
+    "sentiment": "positive"
+  }},
+  ... ({len(comments)} elementos total)
 ]
 
-Responde únicamente con el JSON array, sin explicaciones adicionales."""
+Responde ÚNICAMENTE con el JSON array válido, sin texto adicional."""
+    
+    def get_batch_prompt(self, comments: list) -> str:
+        """Legacy method - redirects to optimized batch analysis"""
+        return self.get_batch_analysis_prompt(comments)
