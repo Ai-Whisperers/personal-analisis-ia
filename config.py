@@ -84,12 +84,12 @@ AZURE_RATE_LIMITS = {
     }
 }
 
-# Default conservative limits (lowest tier)
+# Default conservative limits (lowest tier) - optimized for SLA compliance
 DEFAULT_RATE_LIMITS = {
-    "requests_per_minute": 60,  # Much more conservative to avoid 429s
-    "tokens_per_minute": 150000,  # Reduced from 200k
-    "max_concurrent_requests": 4,  # Reduced from 12 to 4
-    "safety_margin": 0.7  # Even more conservative safety margin
+    "requests_per_minute": 60,  # Conservative to avoid 429s
+    "tokens_per_minute": 150000,  # Balanced for throughput
+    "max_concurrent_requests": 4,  # Reduced to prevent throttling
+    "safety_margin": 0.9  # Higher margin for production stability
 }
 
 # OpenAI API Configuration (from Streamlit secrets)
@@ -159,7 +159,7 @@ def get_rate_limits() -> Dict[str, Any]:
     else:
         tier_data = OPENAI_RATE_LIMITS.get(tier, OPENAI_RATE_LIMITS["tier_1"])
     
-    # Apply safety margin
+    # Apply safety margin (use 0.9 for production stability)
     safety_margin = DEFAULT_RATE_LIMITS["safety_margin"]
     return {
         "requests_per_minute": int(tier_data["requests_per_minute"] * safety_margin),

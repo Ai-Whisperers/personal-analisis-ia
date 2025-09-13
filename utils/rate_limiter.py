@@ -47,10 +47,10 @@ class RateLimiter:
         self.prompt_tokens = config.get('prompt_tokens', 800)
         self.max_tokens_per_request = config.get('max_tokens_per_request', 12000)
         
-        # Backoff settings
-        self.base_backoff = 1.0
-        self.max_backoff = 60.0
-        self.backoff_multiplier = 2.0
+        # Backoff settings - SHORT retries to avoid production delays
+        self.base_backoff = 0.5
+        self.max_backoff = 2.0  # Maximum 2s backoff to prevent long delays
+        self.backoff_multiplier = 1.5
         self.consecutive_429s = 0
         
         # Initialize tokenizer for accurate counting
@@ -125,14 +125,21 @@ class RateLimiter:
             self.consecutive_429s = 0
     
     def record_rate_limit_error(self) -> float:
-        """Record a 429 error and return backoff time"""
+        """Record a 429 error and return short backoff time with jitter"""
+        import random
+
         with self.lock:
             self.consecutive_429s += 1
-            backoff_time = min(
-                self.base_backoff * (self.backoff_multiplier ** self.consecutive_429s),
+            # Short backoff with jitter to avoid thundering herd
+            base_time = min(
+                self.base_backoff * (self.backoff_multiplier ** min(self.consecutive_429s, 3)),
                 self.max_backoff
             )
-            
+
+            # Add random jitter (±20%) to prevent synchronized retries
+            jitter = random.uniform(-0.2, 0.2) * base_time
+            backoff_time = max(0.1, base_time + jitter)
+
             logger.warning(f"Rate limit hit (#{self.consecutive_429s}), backing off for {backoff_time:.2f}s")
             return backoff_time
     

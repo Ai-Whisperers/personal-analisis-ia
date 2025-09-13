@@ -36,8 +36,8 @@ class LLMApiClient:
         self.mock_mode = mock_mode
         self.client = OpenAI(api_key=api_key) if api_key and not mock_mode else None
         self.prompt_templates = PromptTemplates()
-        self.max_retries = 5  # Increased for better reliability
-        self.retry_delay = 1
+        self.max_retries = 3  # Reduced to 3 for faster failure recovery
+        self.retry_delay = 0.5  # Shorter base delay
         
         # Initialize intelligent rate limiter and usage monitor
         try:
@@ -137,23 +137,30 @@ class LLMApiClient:
             return [self._get_mock_response(comment) for comment in comments]
     
     def _calculate_optimal_batch_size(self, comments: List[str]) -> int:
-        """Calculate optimal batch size based on current usage and token limits"""
+        """Calculate optimal batch size with dynamic reduction on 429s"""
         # Get recommended size from rate limiter
         base_size = self.rate_limiter.get_recommended_batch_size()
-        
+
         # Adjust based on current usage
         usage_stats = self.rate_limiter.get_usage_stats()
         tokens_used_percentage = usage_stats['tokens_percentage']
         requests_used_percentage = usage_stats['requests_percentage']
-        
+        consecutive_429s = usage_stats.get('consecutive_rate_limits', 0)
+
+        # Aggressive reduction on consecutive 429s
+        if consecutive_429s >= 2:
+            base_size = max(5, base_size // 4)  # Reduce to 25% on multiple 429s
+        elif consecutive_429s >= 1:
+            base_size = max(8, base_size // 2)  # Reduce to 50% on first 429
+
         # If we're close to limits, be more conservative
         if tokens_used_percentage > 70 or requests_used_percentage > 70:
-            base_size = int(base_size * 0.7)  # 30% reduction
+            base_size = int(base_size * 0.6)  # More aggressive: 40% reduction
         elif tokens_used_percentage > 50 or requests_used_percentage > 50:
-            base_size = int(base_size * 0.85)  # 15% reduction
-        
-        # Ensure minimum viable batch size
-        return max(10, min(base_size, len(comments)))
+            base_size = int(base_size * 0.75)  # 25% reduction
+
+        # Ensure minimum viable batch size but allow smaller batches for recovery
+        return max(3, min(base_size, len(comments)))
     
     def _split_and_analyze_batch(self, comments: List[str], optimal_size: int) -> List[Dict[str, Any]]:
         """Split large batch into optimal chunks and process sequentially"""
@@ -208,10 +215,10 @@ class LLMApiClient:
                 return results
                 
             except openai.RateLimitError as e:
-                # Record rate limit error and apply exponential backoff
+                # Record rate limit error and apply SHORT backoff with jitter
                 backoff_time = self.rate_limiter.record_rate_limit_error()
                 logger.warning(f"Rate limit hit (attempt {attempt + 1}/{self.max_retries}), backing off for {backoff_time:.2f}s")
-                
+
                 # Log for monitoring
                 self.usage_monitor.log_batch_usage(
                     batch_size=len(comments),
@@ -220,9 +227,9 @@ class LLMApiClient:
                     requests_made=0,
                     rate_limited=True
                 )
-                
+
                 if attempt < self.max_retries - 1:
-                    time.sleep(backoff_time)
+                    time.sleep(backoff_time)  # Already short with jitter
                 last_exception = e
                 
             except openai.APIError as e:
@@ -232,15 +239,17 @@ class LLMApiClient:
                 else:
                     logger.error(f"API error (attempt {attempt + 1}/{self.max_retries}): {e}")
                     if attempt < self.max_retries - 1:
-                        # Exponential backoff: 1s, 2s, 4s, 8s, 16s
-                        wait_time = min(2 ** attempt, 16)
+                        # Short exponential backoff: 0.5s, 1s, 2s (max 2s)
+                        wait_time = min(self.retry_delay * (2 ** attempt), 2.0)
                         time.sleep(wait_time)
                     last_exception = e
                     
             except Exception as e:
                 logger.error(f"Unexpected error (attempt {attempt + 1}/{self.max_retries}): {e}")
                 if attempt < self.max_retries - 1:
-                    time.sleep(self.retry_delay * (attempt + 1))
+                    # Short delay for unexpected errors: 0.5s, 1s, 1.5s
+                    wait_time = min(self.retry_delay * (attempt + 1), 1.5)
+                    time.sleep(wait_time)
                 last_exception = e
         
         # All retries exhausted

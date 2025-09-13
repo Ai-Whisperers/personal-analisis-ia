@@ -27,11 +27,15 @@ sys.path.insert(0, str(project_root))
 # Import configuration and utilities
 from config import APP_INFO, FEATURE_FLAGS, validate_config, get_secret
 from utils.logging_helpers import setup_logging, get_logger
+from utils.streamlit_helpers import inject_css
 
 # Initialize logging
 log_level = get_secret("LOG_LEVEL", "INFO")
 setup_logging(level=log_level, log_to_console=True, log_to_file=True)
 logger = get_logger(__name__)
+
+# Apply CSS globally (must be after page config)
+inject_css()
 
 def main():
     """Main application entry point - minimal router"""

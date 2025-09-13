@@ -70,14 +70,35 @@ class DataCleaner:
         
         # Map common column name variations to standard names (full column name matching)
         column_mapping = {
+            # NPS aliases - comprehensive list
             'nps': 'NPS',
-            'score': 'NPS', 
+            'nps score': 'NPS',
+            'puntaje nps': 'NPS',
+            'score nps': 'NPS',
+            'puntuacion nps': 'NPS',
+            'net promoter score': 'NPS',
+            'promoter score': 'NPS',
+            'score': 'NPS',
+            'puntuacion': 'NPS',
+            'puntaje': 'NPS',
+
+            # Rating aliases
             'rating': 'Nota',
             'nota': 'Nota',
             'calificacion': 'Nota',
+            'calificación': 'Nota',
+            'rating score': 'Nota',
+            'valoracion': 'Nota',
+            'valoración': 'Nota',
+
+            # Comment aliases
             'comment': 'Comentario Final',
             'comentario': 'Comentario Final',
-            'feedback': 'Comentario Final'
+            'comentarios': 'Comentario Final',
+            'feedback': 'Comentario Final',
+            'observaciones': 'Comentario Final',
+            'observacion': 'Comentario Final',
+            'texto': 'Comentario Final'
         }
         
         # Apply case-insensitive full column name replacements
