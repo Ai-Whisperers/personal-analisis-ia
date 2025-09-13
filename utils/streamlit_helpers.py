@@ -295,14 +295,53 @@ class StreamlitHelpers:
             mime=mime_type
         )
     
+    def _resolve_css_imports(self, css_content: str, base_path: Path) -> str:
+        """
+        Resolve @import statements by reading and combining referenced CSS files
+        This fixes the issue where @import URLs don't resolve in inline styles
+        """
+        import re
+        
+        # Pattern to match @import url('./path/file.css'); statements
+        import_pattern = r"@import\s+url\s*\(\s*['\"]?\./([^'\"]+\.css)['\"]?\s*\)\s*;"
+        
+        def replace_import(match):
+            import_path = match.group(1)  # Extract path like 'base/variables.css'
+            full_path = base_path / import_path
+            
+            if not full_path.exists():
+                logger.warning(f"CSS import not found: {full_path}")
+                return f"/* Import not found: {import_path} */"
+            
+            try:
+                with open(full_path, 'r', encoding='utf-8') as f:
+                    imported_css = f.read()
+                
+                # Recursively resolve imports in the imported file
+                resolved_css = self._resolve_css_imports(imported_css, base_path)
+                
+                logger.debug(f"Resolved CSS import: {import_path}")
+                return f"/* === Imported from {import_path} === */\n{resolved_css}\n/* === End {import_path} === */"
+                
+            except Exception as e:
+                logger.warning(f"Error reading CSS import {import_path}: {e}")
+                return f"/* Error importing {import_path}: {e} */"
+        
+        # Replace all @import statements with their actual content
+        resolved_content = re.sub(import_pattern, replace_import, css_content, flags=re.IGNORECASE)
+        
+        return resolved_content
+    
     def inject_custom_css(self) -> None:
         """
-        Inject CSS using st.html() - SAFER than unsafe_allow_html
+        Inject CSS using st.html() with resolved @import statements
+        Combines all CSS modules into a single inline style block
         Follows Streamlit best practices for custom styling
         """
         from pathlib import Path
         
         css_path = Path(__file__).parent.parent / "static" / "css" / "main.css"
+        css_base_path = css_path.parent
         
         if not css_path.exists():
             logger.warning(f"CSS file not found: {css_path}")
@@ -312,9 +351,12 @@ class StreamlitHelpers:
             with open(css_path, 'r', encoding='utf-8') as f:
                 css_content = f.read()
             
+            # Resolve all @import statements by combining files
+            combined_css = self._resolve_css_imports(css_content, css_base_path)
+            
             # Use st.html() instead of st.markdown with unsafe_allow_html
             # This provides DOMPurify sanitization and better security
-            st.html(f"<style>{css_content}</style>")
+            st.html(f"<style>{combined_css}</style>")
             logger.info("Custom CSS injected successfully via st.html()")
             
         except Exception as e:
