@@ -39,6 +39,17 @@ class LLMApiClient:
         self.prompt_templates = PromptTemplates()
         self.max_retries = 3
         self.retry_delay = 1
+        
+        # Rate limiting configuration
+        try:
+            from config import BATCH_CONFIG
+            self.rate_limit_delay = BATCH_CONFIG.get('rate_limit_delay', 0.5)
+            self.requests_per_minute = BATCH_CONFIG.get('requests_per_minute', 50)
+        except ImportError:
+            self.rate_limit_delay = 0.5
+            self.requests_per_minute = 50
+        
+        self.last_request_time = 0
     
     def analyze_batch(self, comments: List[str]) -> List[Dict[str, Any]]:
         """Analyze a batch of comments in parallel"""
@@ -68,9 +79,12 @@ class LLMApiClient:
         return results
     
     def _analyze_single_comment(self, comment: str) -> Dict[str, Any]:
-        """Analyze a single comment with retries"""
+        """Analyze a single comment with retries and rate limiting"""
         for attempt in range(self.max_retries):
             try:
+                # Apply rate limiting
+                self._apply_rate_limit()
+                
                 prompt = self.prompt_templates.get_analysis_prompt(comment)
                 
                 response = self.client.chat.completions.create(
@@ -87,7 +101,7 @@ class LLMApiClient:
                 return self._parse_response(content)
                 
             except openai.RateLimitError:
-                wait_time = (2 ** attempt) * self.retry_delay
+                wait_time = max((2 ** attempt) * self.retry_delay, self.rate_limit_delay * 2)
                 logger.warning(f"Rate limit hit, waiting {wait_time}s before retry {attempt + 1}")
                 time.sleep(wait_time)
                 
@@ -99,6 +113,18 @@ class LLMApiClient:
                 time.sleep(self.retry_delay)
         
         return self._get_mock_response(comment)
+    
+    def _apply_rate_limit(self):
+        """Apply rate limiting between requests"""
+        current_time = time.time()
+        time_since_last = current_time - self.last_request_time
+        min_interval = 60.0 / self.requests_per_minute
+        
+        if time_since_last < min_interval:
+            sleep_time = min_interval - time_since_last
+            time.sleep(sleep_time)
+        
+        self.last_request_time = time.time()
     
     def _parse_response(self, content: str) -> Dict[str, Any]:
         """Parse LLM response JSON"""

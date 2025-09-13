@@ -104,7 +104,9 @@ class DataValidator:
         missing_nps = df['NPS'].isna().sum()
         if missing_nps > 0:
             missing_pct = (missing_nps / len(df)) * 100
-            if missing_pct > 50:
+            if missing_pct == 100:
+                errors.append(f"All NPS values are missing ({missing_nps} rows). Check if your Excel has NPS data in the correct column or contains non-numeric values.")
+            elif missing_pct > 50:
                 errors.append(f"Too many missing NPS values: {missing_nps} ({missing_pct:.1f}%)")
             else:
                 warnings.append(f"Missing NPS values: {missing_nps} ({missing_pct:.1f}%)")
@@ -182,7 +184,9 @@ class DataValidator:
             if duplicate_comments > 0:
                 dup_pct = (duplicate_comments / len(valid_comments)) * 100
                 if dup_pct > 5:
-                    warnings.append(f"Many duplicate comments: {duplicate_comments} ({dup_pct:.1f}%)")
+                    warnings.append(f"Many duplicate comments: {duplicate_comments} ({dup_pct:.1f}%) - consider reviewing data quality")
+                else:
+                    warnings.append(f"Duplicate comments found: {duplicate_comments} ({dup_pct:.1f}%) - this is common in survey data")
         
         return {'errors': errors, 'warnings': warnings}
     

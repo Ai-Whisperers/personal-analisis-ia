@@ -91,7 +91,9 @@ def get_batch_config() -> Dict[str, Any]:
         "batch_size": int(get_secret("MAX_BATCH_SIZE", "100")),
         "max_concurrent_batches": int(get_secret("MAX_WORKERS", "12")),
         "retry_attempts": 3,
-        "retry_delay": 1
+        "retry_delay": 1,
+        "rate_limit_delay": float(get_secret("RATE_LIMIT_DELAY", "0.5")),
+        "requests_per_minute": int(get_secret("REQUESTS_PER_MINUTE", "50"))
     }
 
 # Dynamic batch config
@@ -99,7 +101,9 @@ BATCH_CONFIG = get_batch_config() if 'st' in globals() else {
     "batch_size": 100,
     "max_concurrent_batches": 4,
     "retry_attempts": 3,
-    "retry_delay": 1
+    "retry_delay": 1,
+    "rate_limit_delay": 0.5,
+    "requests_per_minute": 50
 }
 
 # File processing limits
