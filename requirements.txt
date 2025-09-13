@@ -12,8 +12,9 @@ xlrd>=2.0.1
 # Visualization & Charts
 plotly>=5.22.0
 
-# AI/ML Dependencies  
+# AI/ML Dependencies
 openai>=1.35.0
+tiktoken>=0.7.0
 
 # Text Processing & NLP
 unicodedata2>=15.0.0
