@@ -55,18 +55,6 @@ class DataCleaner:
         """Clean column names - remove extra spaces, standardize"""
         df.columns = df.columns.str.strip()
         
-        # Map common column name variations to standard names
-        column_mapping = {
-            'nps': 'NPS',
-            'score': 'NPS', 
-            'rating': 'Nota',
-            'nota': 'Nota',
-            'calificacion': 'Nota',
-            'comment': 'Comentario Final',
-            'comentario': 'Comentario Final',
-            'feedback': 'Comentario Final'
-        }
-        
         # Handle exact column name replacements first (case sensitive)
         exact_replacements = {
             'Comentario Final Final': 'Comentario Final',
@@ -80,9 +68,25 @@ class DataCleaner:
                 df = df.rename(columns={old_col: new_col})
                 logger.info(f"Renamed column '{old_col}' to '{new_col}'")
         
-        # Then apply case-insensitive replacements
-        for old_name, new_name in column_mapping.items():
-            df.columns = df.columns.str.replace(old_name, new_name, case=False)
+        # Map common column name variations to standard names (full column name matching)
+        column_mapping = {
+            'nps': 'NPS',
+            'score': 'NPS', 
+            'rating': 'Nota',
+            'nota': 'Nota',
+            'calificacion': 'Nota',
+            'comment': 'Comentario Final',
+            'comentario': 'Comentario Final',
+            'feedback': 'Comentario Final'
+        }
+        
+        # Apply case-insensitive full column name replacements
+        new_columns = []
+        for col in df.columns:
+            col_lower = col.lower().strip()
+            new_columns.append(column_mapping.get(col_lower, col))
+        
+        df.columns = new_columns
         
         return df
     
