@@ -85,7 +85,7 @@ class BackgroundPipelineRunner:
         self,
         pipeline_func: Callable[[str], Dict[str, Any]],
         file_path: str,
-        timeout_seconds: int = 300,  # 5 minutes default
+        timeout_seconds: int = 600,  # 10 minutes default for large datasets
         on_complete: Optional[Callable[[PipelineResult], None]] = None,
         on_progress: Optional[Callable[[str, float], None]] = None
     ) -> Future[PipelineResult]:

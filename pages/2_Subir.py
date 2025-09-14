@@ -18,10 +18,8 @@ from controller import PipelineController
 from config import FEATURE_FLAGS, get_openai_api_key
 from utils.logging_helpers import get_logger
 
-# Import UI components only
-from components.ui_components.uploader import render_file_uploader
-from components.ui_components.chart_generator import render_analysis_charts
-from components.ui_components.report_exporter import render_export_section
+# Import UI components only (minimal for upload/trigger functionality)
+# Chart and export components moved to 3_📊_Resultados.py page
 
 # Import glassmorphism theme
 from utils.streamlit_helpers import apply_glassmorphism_theme
@@ -59,10 +57,24 @@ def main():
         st.markdown("---")
         render_analysis_section(controller)
     
-    # Results section
+    # Results section - redirect to dedicated page
     if controller.state_manager.is_analysis_complete():
         st.markdown("---")
-        render_results_section(controller)
+        st.success("✅ Análisis completado")
+        st.info("Los resultados están disponibles en la página de resultados")
+
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("📊 Ver Resultados", use_container_width=True, type="primary"):
+                st.switch_page("pages/3_📊_Resultados.py")
+        with col2:
+            if st.button("🔄 Nuevo Análisis", use_container_width=True):
+                # Clear session state for new analysis
+                keys_to_clear = ['analysis_results', 'pipeline_running', 'uploaded_file', 'current_stage']
+                for key in keys_to_clear:
+                    if key in st.session_state:
+                        del st.session_state[key]
+                st.rerun()
 
 def render_status_section(controller: PipelineController):
     """Show current pipeline status"""
@@ -163,69 +175,34 @@ def render_analysis_section(controller: PipelineController):
         run_analysis_async(controller, use_mock, show_progress)
 
 def run_analysis_async(controller: PipelineController, use_mock: bool, show_progress: bool):
-    """Execute analysis using controller async pattern"""
+    """Execute analysis and redirect to results page - minimal trigger logic"""
     try:
         file_info = controller.state_manager.get_uploaded_file()
         if not file_info:
             st.error("No hay archivo cargado")
             return
-        
-        # Start async analysis
+
+        # Start async analysis through controller
         controller.run_pipeline_async(
             file_path=file_info['temp_path']
         )
-        
-        st.success("Análisis iniciado en segundo plano")
-        st.info("La página se actualizará automáticamente cuando termine")
-        
-        # Auto-refresh to show progress
+
+        # Show immediate feedback
+        st.success("✅ Análisis iniciado correctamente")
+
+        # Brief pause to ensure pipeline starts
         time.sleep(1)
-        st.rerun()
-        
+
+        # Redirect to results page where polling will handle progress
+        st.info("🔄 Redirigiendo a página de resultados...")
+        st.switch_page("pages/3_📊_Resultados.py")
+
     except Exception as e:
         st.error(f"Error al iniciar análisis: {str(e)}")
         logger.error(f"Analysis start error: {e}")
 
-def render_results_section(controller: PipelineController):
-    """Render analysis results using UI components"""
-    st.subheader("Resultados del Análisis")
-    
-    results = controller.state_manager.get_analysis_results()
-    if not results:
-        st.warning("No hay resultados disponibles")
-        return
-    
-    results_df = results['dataframe']
-    summary = results.get('summary', {})
-    
-    # Overview metrics
-    col1, col2, col3, col4 = st.columns(4)
-    
-    with col1:
-        st.metric("Comentarios", summary.get('total_comments', 0))
-    
-    with col2:
-        st.metric("Emociones", summary.get('emotions_detected', 0))
-    
-    with col3:
-        avg_nps = summary.get('avg_nps_score')
-        if avg_nps:
-            st.metric("NPS Promedio", f"{avg_nps:.1f}")
-    
-    with col4:
-        st.metric("Riesgo Alto", summary.get('churn_risk_high', 0))
-    
-    # Charts
-    st.markdown("---")
-    render_analysis_charts(results_df)
-    
-    # Export
-    st.markdown("---")
-    render_export_section(results_df, summary)
-    
-    # Raw data preview
-    with st.expander("Ver datos procesados", expanded=False):
-        st.dataframe(results_df.head(100))
+# Results section removed - now handled by dedicated 3_📊_Resultados.py page
+# This maintains clean separation between upload/trigger (page 2) and display/export (page 3)
 
 if __name__ == "__main__":
     main()

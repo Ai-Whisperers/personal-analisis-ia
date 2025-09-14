@@ -5,6 +5,7 @@ Minimal router following blueprint <150 lines requirement
 """
 import streamlit as st
 import sys
+import time
 from pathlib import Path
 
 # Configure Streamlit page FIRST
@@ -90,8 +91,14 @@ def render_navigation_section():
             st.switch_page("pages/2_Subir.py")
     
     with col3:
-        if st.button("📋 Documentación", use_container_width=True):
-            show_documentation_modal()
+        if st.button("📊 Ver Resultados", use_container_width=True):
+            # Check if there are any results to show
+            if 'analysis_results' in st.session_state:
+                st.switch_page("pages/3_📊_Resultados.py")
+            else:
+                st.info("No hay resultados disponibles. Ejecuta un análisis primero.")
+                time.sleep(2)
+                st.switch_page("pages/2_Subir.py")
 
 def show_documentation_modal():
     """Show documentation in expandable section"""

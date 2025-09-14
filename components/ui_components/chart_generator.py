@@ -42,8 +42,46 @@ class ChartGenerator:
                 colors[emotion] = self.colors['neutral']
         return colors
     
+    def create_emotion_chart(self, emotion_data) -> Optional[go.Figure]:
+        """Create emotion distribution chart - returns figure instead of rendering"""
+        try:
+            if isinstance(emotion_data, pd.DataFrame):
+                # Extract emotion columns if DataFrame
+                emotion_cols = [col for col in emotion_data.columns if col.startswith('emo_')]
+                if emotion_cols:
+                    data = emotion_data[emotion_cols].mean() * 100
+                else:
+                    return None
+            elif isinstance(emotion_data, pd.Series):
+                data = emotion_data * 100
+            else:
+                return None
+
+            # Create bar chart
+            fig = px.bar(
+                x=data.values,
+                y=data.index,
+                orientation='h',
+                title="Distribución de Emociones (%)",
+                color=data.values,
+                color_continuous_scale='RdYlBu_r'
+            )
+
+            fig.update_layout(
+                showlegend=False,
+                height=400,
+                xaxis_title="Porcentaje (%)",
+                yaxis_title="Emociones"
+            )
+
+            return fig
+
+        except Exception as e:
+            logger.error(f"Error creating emotion chart: {e}")
+            return None
+
     def render_emotion_distribution(self, df: pd.DataFrame, chart_type: str = "bar") -> None:
-        """Render emotion distribution chart with flexible column detection"""
+        """Render emotion distribution chart with flexible column detection - LEGACY"""
         st.subheader("Distribución de Emociones")
 
         emotion_data = {}
@@ -193,6 +231,45 @@ class ChartGenerator:
             with col4:
                 st.metric("NPS Score", f"{nps_score:.0f}", delta=f"{'Excelente' if nps_score > 50 else 'Bueno' if nps_score > 0 else 'Crítico'}")
     
+    def create_churn_risk_chart(self, risk_data) -> Optional[go.Figure]:
+        """Create churn risk chart - returns figure instead of rendering"""
+        try:
+            if isinstance(risk_data, pd.DataFrame):
+                if 'churn_risk' not in risk_data.columns:
+                    return None
+                # Create risk categories
+                risk_categories = pd.cut(risk_data['churn_risk'],
+                                       bins=[0, 0.3, 0.7, 1.0],
+                                       labels=['Bajo', 'Medio', 'Alto'])
+                data = risk_categories.value_counts()
+            elif isinstance(risk_data, pd.Series):
+                data = risk_data
+            else:
+                return None
+
+            # Create bar chart
+            colors = [self.colors['success'], self.colors['warning'], self.colors['error']]
+
+            fig = px.bar(
+                x=data.index,
+                y=data.values,
+                title="Distribución de Riesgo de Churn",
+                color=data.values,
+                color_discrete_sequence=colors
+            )
+
+            fig.update_layout(
+                xaxis_title="Nivel de Riesgo",
+                yaxis_title="Cantidad de Comentarios",
+                showlegend=False
+            )
+
+            return fig
+
+        except Exception as e:
+            logger.error(f"Error creating churn risk chart: {e}")
+            return None
+
     def render_churn_risk_distribution(self, df: pd.DataFrame) -> None:
         """Render churn risk distribution"""
         st.subheader("Distribución de Riesgo de Churn")
