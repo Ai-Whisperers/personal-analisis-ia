@@ -27,7 +27,7 @@ DEFAULT_CONFIG = {
 
 class EngineController:
     """Optimized pipeline orchestrator for high-throughput processing"""
-    
+
     def __init__(self, api_client: LLMApiClient, config: Dict[str, Any] = None):
         self.api_client = api_client
         self.config = {**DEFAULT_CONFIG, **(config or {})}
@@ -35,15 +35,23 @@ class EngineController:
         self.pain_analyzer = PainPointsAnalyzer()
         self.churn_analyzer = ChurnAnalyzer()
         self.nps_analyzer = NPSAnalyzer()
-        
+
         # Dynamic batch sizing based on rate limits
         self.batch_size = self._calculate_optimal_batch_size()
-        
+
         # Performance tracking
         self.total_comments_processed = 0
         self.total_processing_time = 0.0
-        
+
+        # Progress callback integration
+        self.progress_callback = None
+
         logger.info(f"Engine controller initialized with batch_size={self.batch_size}, max_concurrent={self.config['max_concurrent_batches']}")
+
+    def set_progress_callback(self, callback):
+        """Set progress callback for real-time UI updates"""
+        self.progress_callback = callback
+        logger.debug("Progress callback configured")
     
     def run_pipeline(self, file_path: str) -> pd.DataFrame:
         """Optimized main pipeline execution for high performance"""
@@ -52,7 +60,14 @@ class EngineController:
         
         # Step 1: Parse and clean with timing
         file_start = time.time()
+        if self.progress_callback:
+            self.progress_callback("Lectura de archivo", 0.1, "Cargando archivo Excel")
+
         df = reader.read_excel(file_path)
+
+        if self.progress_callback:
+            self.progress_callback("Limpieza de datos", 0.15, "Validando estructura")
+
         df = cleaner.clean(df)
         df = validator.validate(df)
         df = normalizer.normalize(df)
@@ -63,6 +78,9 @@ class EngineController:
         
         # Step 2: Create optimized batches based on current API usage
         batch_start = time.time()
+        if self.progress_callback:
+            self.progress_callback("Creación de lotes", 0.25, f"Organizando {comment_count} comentarios")
+
         batches = self._create_optimized_batches(df)
         batch_time = time.time() - batch_start
         
@@ -248,29 +266,8 @@ class EngineController:
     
     def _calculate_optimal_concurrency(self) -> int:
         """Calculate concurrency - SEVERELY LIMITED for Streamlit Cloud compatibility"""
-        # Streamlit Cloud has SEVERE threading limitations - default to sequential
-
-        # Check if we're in Streamlit environment
-        try:
-            import streamlit as st
-            # If we can access session_state, we're in Streamlit - be very conservative
-            if hasattr(st, 'session_state'):
-                logger.info("Streamlit environment detected - forcing sequential processing")
-                return 1  # Always sequential in Streamlit for stability
-        except ImportError:
-            pass
-
-        # Fallback for non-Streamlit environments (testing, etc.)
-        if hasattr(self.api_client, 'get_usage_stats'):
-            usage_stats = self.api_client.get_usage_stats()
-            tokens_percentage = usage_stats.get('tokens_percentage', 0)
-            requests_percentage = usage_stats.get('requests_percentage', 0)
-
-            # Any rate limit pressure = sequential
-            if tokens_percentage > 30 or requests_percentage > 30:
-                return 1
-
-        # Maximum 1 worker for Streamlit compatibility
+        # Always use sequential processing for maximum stability
+        logger.info("Using sequential processing for maximum Streamlit Cloud compatibility")
         return 1
     
     def _process_single_batch(self, batch: pd.DataFrame) -> List[Dict[str, Any]]:

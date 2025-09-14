@@ -189,11 +189,38 @@ class OptimizedStateManager(IStateManager):
             logger.error(f"Error storing analysis results: {e}")
             self.set_error_message(f"Error storing results: {str(e)}")
 
-    def _schedule_cleanup(self, data_key: str) -> None:
-        """Schedule cleanup of temporary data"""
-        # Note: In production, this would be handled by a background task
-        # For now, we rely on session expiration
-        logger.debug(f"Scheduled cleanup for: {data_key}")
+    def _schedule_cleanup(self, data_key: str, delay_seconds: int = 300) -> None:
+        """Schedule cleanup of temporary data with TTL mechanism"""
+        try:
+            import threading
+            import time
+
+            def cleanup_task():
+                """Background cleanup task"""
+                time.sleep(delay_seconds)
+                try:
+                    if data_key in st.session_state:
+                        del st.session_state[data_key]
+                        logger.info(f"Automatic cleanup completed for: {data_key}")
+                except Exception as e:
+                    logger.warning(f"Cleanup failed for {data_key}: {e}")
+
+            # Schedule cleanup in background thread
+            cleanup_thread = threading.Thread(target=cleanup_task, daemon=True)
+            cleanup_thread.start()
+
+            logger.info(f"Scheduled cleanup for {data_key} in {delay_seconds} seconds")
+
+        except Exception as e:
+            logger.warning(f"Could not schedule cleanup for {data_key}: {e}")
+            # Fallback: immediate manual cleanup after brief delay
+            try:
+                time.sleep(1)  # Brief delay to allow processing
+                if data_key in st.session_state and len(st.session_state) > 20:
+                    del st.session_state[data_key]
+                    logger.info(f"Manual cleanup completed for: {data_key}")
+            except Exception:
+                logger.debug(f"Manual cleanup also failed for: {data_key}")
 
     def get_analysis_results(self) -> Optional[Dict[str, Any]]:
         """Get analysis results (paginated)"""
@@ -222,21 +249,46 @@ class OptimizedStateManager(IStateManager):
             return None
 
     def get_results_page(self, page_number: int) -> Optional[pd.DataFrame]:
-        """Get specific page of results"""
+        """Get specific page of results with dynamic loading"""
         try:
             paginated_data = st.session_state.get('paginated_results')
             if not paginated_data:
                 return None
 
-            # For now, return current page data
-            # In a full implementation, this would load the requested page
             results = PaginatedResults(**paginated_data)
 
+            # Validate page number
+            if page_number < 0 or page_number >= results.total_pages:
+                logger.warning(f"Invalid page number {page_number}. Valid range: 0-{results.total_pages-1}")
+                return results.current_data
+
+            # Return current page if already loaded
             if page_number == results.current_page:
                 return results.current_data
 
-            # TODO: Implement dynamic page loading from stored data
-            logger.warning(f"Dynamic page loading not implemented for page {page_number}")
+            # Dynamic page loading from stored full data
+            full_data_keys = [key for key in st.session_state.keys() if key.startswith('full_results_')]
+            if full_data_keys:
+                full_data_key = full_data_keys[0]  # Get most recent
+                full_df = st.session_state.get(full_data_key)
+
+                if full_df is not None:
+                    start_idx = page_number * results.page_size
+                    end_idx = start_idx + results.page_size
+                    page_data = full_df.iloc[start_idx:end_idx]
+
+                    # Update current page in session state
+                    results.current_page = page_number
+                    results.current_data = page_data
+
+                    self._atomic_update({
+                        'paginated_results': asdict(results)
+                    })
+
+                    logger.info(f"Loaded page {page_number} with {len(page_data)} rows")
+                    return page_data
+
+            logger.warning(f"No full data available for page loading. Returning current page.")
             return results.current_data
 
         except Exception as e:

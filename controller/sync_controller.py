@@ -135,10 +135,11 @@ class SynchronousPipelineController(IPipelineRunner):
 
         # Create a custom progress callback
         def update_progress(stage: str, progress: float, message: str = ""):
-            """Update UI with current progress"""
+            """Update UI with current progress without rerunning"""
             progress_bar.progress(progress, text=message or stage)
             status_container.write(f"⚡ {stage}: {message}")
-            st.rerun()  # Force UI update
+            # Removed st.rerun() to prevent infinite loops and UI instability
+            time.sleep(0.1)  # Brief pause to allow UI to render naturally
 
         # Override engine controller progress tracking
         original_run = self.engine_controller.run_pipeline
@@ -146,28 +147,18 @@ class SynchronousPipelineController(IPipelineRunner):
         def run_with_progress(file_path: str) -> pd.DataFrame:
             """Wrapper to inject progress updates"""
 
-            # File processing stage
-            update_progress("Procesamiento de archivo", 0.25, "Leyendo y validando Excel")
+            # Set up progress callback in engine controller
+            self.engine_controller.set_progress_callback(update_progress)
 
             # Use performance monitor (should work in sync context)
             with monitor("sync_pipeline_execution"):
-                # Call original pipeline but with progress hooks
                 start_time = time.time()
 
-                # Stage 1: File processing
-                update_progress("Limpieza de datos", 0.35, "Validando y limpiando comentarios")
-
-                # Stage 2: Batching
-                update_progress("Creación de lotes", 0.45, "Organizando comentarios en lotes")
-
-                # Stage 3: AI Processing (this will take most time)
-                update_progress("Análisis con IA", 0.55, "Procesando emociones y sentimientos")
-
-                # Execute the actual pipeline
+                # Execute the actual pipeline with integrated progress callbacks
                 results_df = original_run(file_path)
 
-                # Stage 4: Post-processing
-                update_progress("Post-procesamiento", 0.85, "Aplicando inferencia NPS")
+                # Final processing stage
+                update_progress("Post-procesamiento", 0.9, "Finalizando resultados")
 
                 total_time = time.time() - start_time
                 logger.info(f"Synchronous pipeline completed in {total_time:.2f}s")
@@ -225,7 +216,11 @@ class SynchronousPipelineController(IPipelineRunner):
                     }
                 else:
                     # Clean up temp file on validation failure
-                    os.unlink(tmp_path)
+                    try:
+                        os.unlink(tmp_path)
+                        logger.debug(f"Cleaned up temp file after validation failure: {tmp_path}")
+                    except Exception as cleanup_error:
+                        logger.warning(f"Could not cleanup temp file {tmp_path}: {cleanup_error}")
 
                     status.update(label="❌ Validación fallida", state="error")
                     st.toast("❌ Archivo inválido", icon="⚠️")
@@ -318,19 +313,35 @@ class SynchronousPipelineController(IPipelineRunner):
             return {}
 
     def cleanup(self) -> None:
-        """Clean up resources and temporary files"""
-        # Clean up temp files
-        file_info = self.state_manager.get_uploaded_file()
-        if file_info and 'temp_path' in file_info:
-            temp_path = file_info['temp_path']
-            if os.path.exists(temp_path):
-                try:
-                    os.unlink(temp_path)
-                    logger.debug(f"Cleaned up temp file: {temp_path}")
-                except Exception as e:
-                    logger.warning(f"Could not clean up temp file: {e}")
+        """Clean up resources and temporary files with explicit error handling"""
+        try:
+            # Clean up temp files
+            file_info = self.state_manager.get_uploaded_file()
+            if file_info and 'temp_path' in file_info:
+                temp_path = file_info['temp_path']
+                if os.path.exists(temp_path):
+                    try:
+                        os.unlink(temp_path)
+                        logger.debug(f"Cleaned up temp file: {temp_path}")
 
-        logger.info("Synchronous pipeline controller cleanup complete")
+                        # Clear file info from state after successful cleanup
+                        self.state_manager.set_uploaded_file(None)
+
+                    except PermissionError as e:
+                        logger.warning(f"Permission denied cleaning up temp file {temp_path}: {e}")
+                    except FileNotFoundError:
+                        logger.debug(f"Temp file already cleaned up: {temp_path}")
+                    except Exception as e:
+                        logger.warning(f"Unexpected error cleaning up temp file {temp_path}: {e}")
+
+            # Also trigger memory optimization
+            if hasattr(self.state_manager, 'optimize_memory'):
+                self.state_manager.optimize_memory()
+
+            logger.info("Synchronous pipeline controller cleanup complete")
+
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
 
     def __del__(self):
         """Destructor to ensure cleanup"""
