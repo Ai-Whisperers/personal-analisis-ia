@@ -258,29 +258,20 @@ class LLMApiClient:
         raise last_exception or Exception("Unknown error in batch processing")
     
     def _parse_batch_response(self, content: str, expected_count: int) -> List[Dict[str, Any]]:
-        """Parse batch response JSON array with robust error handling"""
+        """Enhanced batch response parser with JSON repair and structure normalization"""
         try:
-            # Extract JSON from response
-            json_str = content.strip()
-            if '```json' in content:
-                json_start = content.find('```json') + 7
-                json_end = content.find('```', json_start)
-                json_str = content[json_start:json_end].strip()
-            elif '```' in content:
-                # Handle cases where JSON is in code blocks without 'json' label
-                lines = content.split('\n')
-                json_lines = []
-                in_code_block = False
-                for line in lines:
-                    if line.strip() == '```':
-                        in_code_block = not in_code_block
-                    elif in_code_block or (line.strip().startswith('[') or line.strip().startswith('{')):
-                        json_lines.append(line)
-                json_str = '\n'.join(json_lines).strip()
-            
-            # Parse JSON
-            parsed = json.loads(json_str)
-            
+            # Enhanced JSON extraction with multiple strategies
+            json_str = self._extract_json_from_response(content)
+
+            # Parse JSON with automatic repair
+            try:
+                parsed = json.loads(json_str)
+            except json.JSONDecodeError as e:
+                logger.warning(f"JSON parse error, attempting repair: {e}")
+                json_str = self._repair_json(json_str)
+                parsed = json.loads(json_str)
+                logger.info("JSON successfully repaired and parsed")
+
             # Handle different response formats
             if isinstance(parsed, list):
                 results = parsed
@@ -289,34 +280,169 @@ class LLMApiClient:
                 results = [parsed]
             else:
                 logger.error(f"Unexpected response format: {type(parsed)}")
-                return [self._get_default_response() for _ in range(expected_count)]
-            
-            # Validate and pad results
+                raise ValueError(f"Invalid response type: {type(parsed)}")
+
+            # Validate, normalize and pad results
             validated_results = []
             for i, result in enumerate(results):
-                if isinstance(result, dict) and self._validate_response_structure(result):
-                    validated_results.append(result)
+                if isinstance(result, dict):
+                    normalized_result = self._normalize_response(result)
+                    if self._validate_response_structure(normalized_result):
+                        validated_results.append(normalized_result)
+                    else:
+                        logger.warning(f"Response structure validation failed for comment {i}")
+                        validated_results.append(self._get_default_response())
                 else:
-                    logger.warning(f"Invalid response structure for comment {i}, using default")
+                    logger.warning(f"Non-dict response at index {i}: {type(result)}")
                     validated_results.append(self._get_default_response())
-            
-            # Ensure we have exactly the expected number of results
+
+            # Ensure exact count match
             while len(validated_results) < expected_count:
+                logger.warning(f"Padding response list: {len(validated_results)} < {expected_count}")
                 validated_results.append(self._get_default_response())
-            
+
             if len(validated_results) > expected_count:
+                logger.warning(f"Truncating response list: {len(validated_results)} > {expected_count}")
                 validated_results = validated_results[:expected_count]
-            
-            logger.info(f"Successfully parsed {len(validated_results)}/{expected_count} responses")
+
+            # Log parsing success metrics
+            valid_responses = sum(1 for r in validated_results if r != self._get_default_response())
+            success_rate = (valid_responses / expected_count) * 100
+
+            logger.info(f"Response parsing completed: {valid_responses}/{expected_count} valid ({success_rate:.1f}%)")
+
             return validated_results
-            
+
         except json.JSONDecodeError as e:
-            logger.error(f"Failed to parse batch JSON response: {e}")
-            logger.error(f"Raw content preview: {content[:300]}...")
+            logger.error(f"JSON parsing failed even after repair: {e}")
+            logger.error(f"Raw content preview: {content[:500]}...")
             return [self._get_default_response() for _ in range(expected_count)]
         except Exception as e:
-            logger.error(f"Unexpected error parsing batch response: {e}")
+            logger.error(f"Critical error in response parsing: {e}")
             return [self._get_default_response() for _ in range(expected_count)]
+
+    def _extract_json_from_response(self, content: str) -> str:
+        """Enhanced JSON extraction with multiple strategies"""
+        content = content.strip()
+
+        # Strategy 1: Direct JSON (no markdown)
+        if content.startswith('[') or content.startswith('{'):
+            return content
+
+        # Strategy 2: JSON in markdown code blocks
+        if '```json' in content:
+            start = content.find('```json') + 7
+            end = content.find('```', start)
+            if end > start:
+                return content[start:end].strip()
+
+        # Strategy 3: JSON in generic code blocks
+        if '```' in content:
+            lines = content.split('\n')
+            json_lines = []
+            in_code_block = False
+
+            for line in lines:
+                if line.strip() == '```':
+                    in_code_block = not in_code_block
+                elif in_code_block:
+                    json_lines.append(line)
+                elif line.strip().startswith(('[', '{')):
+                    # JSON outside code blocks
+                    json_lines.append(line)
+
+            potential_json = '\n'.join(json_lines).strip()
+            if potential_json:
+                return potential_json
+
+        # Strategy 4: Find JSON array/object in text
+        import re
+
+        # Look for JSON array
+        array_match = re.search(r'\[.*\]', content, re.DOTALL)
+        if array_match:
+            return array_match.group(0)
+
+        # Look for JSON object
+        object_match = re.search(r'\{.*\}', content, re.DOTALL)
+        if object_match:
+            return object_match.group(0)
+
+        # Strategy 5: Last resort - return as is and let repair handle it
+        logger.warning("No clear JSON structure found, attempting repair on full content")
+        return content
+
+    def _repair_json(self, json_str: str) -> str:
+        """Repair common JSON formatting issues"""
+        import re
+
+        # Remove any non-JSON text before array/object
+        json_str = re.sub(r'^[^[{]*', '', json_str)
+        json_str = re.sub(r'[^}\]]*$', '', json_str)
+
+        # Fix trailing commas
+        json_str = re.sub(r',\s*}', '}', json_str)
+        json_str = re.sub(r',\s*]', ']', json_str)
+
+        # Fix missing quotes on keys (common LLM error)
+        json_str = re.sub(r'(\w+):\s*', r'"\1": ', json_str)
+
+        # Fix single quotes to double quotes
+        json_str = json_str.replace("'", '"')
+
+        # Fix common LLM escaping issues
+        json_str = json_str.replace('\\"', '"')
+
+        # Remove duplicate quotes
+        json_str = re.sub(r'""(\w+)""', r'"\1"', json_str)
+
+        return json_str
+
+    def _normalize_response(self, response: Dict[str, Any]) -> Dict[str, Any]:
+        """Normalize AI response to expected format with all 16 emotions"""
+        from config import EMOTIONS_16
+
+        # Ensure all 16 emotions are present
+        emotions = response.get('emotions', {})
+        if not isinstance(emotions, dict):
+            emotions = {}
+
+        # Fill missing emotions with 0.0
+        for emotion in EMOTIONS_16:
+            if emotion not in emotions:
+                emotions[emotion] = 0.0
+            else:
+                # Validate and clamp emotion values
+                try:
+                    emotions[emotion] = max(0.0, min(1.0, float(emotions[emotion])))
+                except (ValueError, TypeError):
+                    emotions[emotion] = 0.0
+
+        # Normalize pain_points
+        pain_points = response.get('pain_points', [])
+        if not isinstance(pain_points, list):
+            pain_points = []
+        # Ensure all items are strings
+        pain_points = [str(item) for item in pain_points if item]
+
+        # Normalize churn_risk
+        try:
+            churn_risk = float(response.get('churn_risk', 0.5))
+            churn_risk = max(0.0, min(1.0, churn_risk))
+        except (ValueError, TypeError):
+            churn_risk = 0.5
+
+        # Normalize sentiment
+        sentiment = str(response.get('sentiment', 'neutral')).lower()
+        if sentiment not in ['positive', 'negative', 'neutral']:
+            sentiment = 'neutral'
+
+        return {
+            'emotions': emotions,
+            'pain_points': pain_points,
+            'churn_risk': churn_risk,
+            'sentiment': sentiment
+        }
     
     def _validate_response_structure(self, response: Dict[str, Any]) -> bool:
         """Validate that response has required structure"""

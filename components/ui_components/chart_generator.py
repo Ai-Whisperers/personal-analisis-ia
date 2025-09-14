@@ -43,21 +43,51 @@ class ChartGenerator:
         return colors
     
     def render_emotion_distribution(self, df: pd.DataFrame, chart_type: str = "bar") -> None:
-        """Render emotion distribution chart"""
+        """Render emotion distribution chart with flexible column detection"""
         st.subheader("Distribución de Emociones")
-        
-        emotion_cols = [col for col in df.columns if col.startswith('emo_')]
-        if not emotion_cols:
-            st.warning("No se encontraron datos de emociones")
-            return
-        
-        # Calculate percentages
+
         emotion_data = {}
-        for col in emotion_cols:
-            emotion_name = col.replace('emo_', '')
-            if emotion_name in EMOTIONS_16:
-                avg_score = df[col].mean()
-                emotion_data[emotion_name.title()] = avg_score * 100
+
+        # Strategy 1: Direct emotion columns (post-AI processing format)
+        for emotion in EMOTIONS_16:
+            if emotion in df.columns:
+                avg_score = df[emotion].mean()
+                emotion_data[emotion.title()] = avg_score * 100
+
+        # Strategy 2: Legacy emo_ prefixed columns (backward compatibility)
+        if not emotion_data:
+            emotion_cols = [col for col in df.columns if col.startswith('emo_')]
+            for col in emotion_cols:
+                emotion_name = col.replace('emo_', '')
+                if emotion_name in EMOTIONS_16:
+                    avg_score = df[col].mean()
+                    emotion_data[emotion_name.title()] = avg_score * 100
+
+        # Strategy 3: Parse from serialized emotion data
+        if not emotion_data and 'emotions_json' in df.columns:
+            import json
+            for idx, emotion_json in df['emotions_json'].items():
+                try:
+                    emotions = json.loads(emotion_json) if isinstance(emotion_json, str) else emotion_json
+                    for emotion, score in emotions.items():
+                        if emotion in EMOTIONS_16:
+                            if emotion not in emotion_data:
+                                emotion_data[emotion] = 0
+                            emotion_data[emotion] += score
+                except Exception as e:
+                    logger.warning(f"Error parsing emotions at row {idx}: {e}")
+
+            # Average the accumulated scores
+            if emotion_data:
+                total_rows = len(df)
+                emotion_data = {k.title(): (v/total_rows)*100 for k, v in emotion_data.items()}
+
+        # Final validation
+        if not emotion_data:
+            st.error("❌ No se encontraron datos de emociones válidos")
+            st.info("Columnas disponibles: " + ", ".join(df.columns.tolist()))
+            logger.error(f"No emotion data found. Available columns: {list(df.columns)}")
+            return
         
         # Sort by percentage
         emotion_data = dict(sorted(emotion_data.items(), key=lambda x: x[1], reverse=True))

@@ -71,10 +71,43 @@ class EngineController:
         results = self._process_batches_optimized(batches)
         llm_time = time.time() - llm_start
         
-        # Step 4: Merge results back to DataFrame
-        merge_start = time.time()
-        final_df = self._merge_results(df, results)
-        merge_time = time.time() - merge_start
+        # Step 4: NPS Inference for missing values (POST-AI as requested)
+        inference_start = time.time()
+        original_nps = df['NPS'].tolist()
+
+        from core.ai_engine.nps_inference import infer_missing_nps_scores
+        inferred_nps, nps_stats = infer_missing_nps_scores(results, original_nps)
+
+        # Update DataFrame with inferred NPS values
+        df['NPS'] = inferred_nps
+        df['NPS_was_inferred'] = [
+            orig is None or (isinstance(orig, float) and np.isnan(orig))
+            for orig in original_nps
+        ]
+
+        inference_time = time.time() - inference_start
+        logger.info(f"NPS inference completed in {inference_time:.2f}s")
+        logger.info(f"NPS coverage improved: {nps_stats['coverage_improvement']['improvement_points']:.1f} percentage points")
+
+        # Step 5: Format results for charts and export
+        format_start = time.time()
+
+        # Get NPS categories for the formatted data
+        from core.ai_engine.nps_module import NPSAnalyzer
+        nps_analyzer = NPSAnalyzer()
+        nps_categories = []
+
+        for i, result in enumerate(results):
+            nps_score = df.iloc[i]['NPS'] if not pd.isna(df.iloc[i]['NPS']) else None
+            category = nps_analyzer.analyze(result, nps_score)
+            nps_categories.append(category)
+
+        # Format using the new results formatter
+        from core.data_transform.results_formatter import format_ai_results_for_charts
+        final_df = format_ai_results_for_charts(df, results, nps_categories)
+
+        format_time = time.time() - format_start
+        logger.info(f"Results formatting completed in {format_time:.2f}s")
         
         # Performance reporting
         total_time = time.time() - start_time
@@ -83,7 +116,7 @@ class EngineController:
         
         avg_time_per_comment = total_time / comment_count if comment_count > 0 else 0
         logger.info(f"Pipeline completed in {total_time:.2f}s for {comment_count} comments ({avg_time_per_comment*1000:.1f}ms/comment)")
-        logger.info(f"Timing breakdown: File={file_time:.2f}s, Batch={batch_time:.2f}s, LLM={llm_time:.2f}s, Merge={merge_time:.2f}s")
+        logger.info(f"Timing breakdown: File={file_time:.2f}s, Batch={batch_time:.2f}s, LLM={llm_time:.2f}s, NPS_Inference={inference_time:.2f}s, Format={format_time:.2f}s")
         
         # Log performance metrics
         if hasattr(self.api_client, 'get_performance_metrics'):

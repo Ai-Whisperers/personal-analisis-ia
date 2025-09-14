@@ -165,19 +165,92 @@ class DataCleaner:
         return df
     
     def _clean_nps_scores(self, df: pd.DataFrame) -> pd.DataFrame:
-        """Clean and validate NPS scores"""
+        """Smart NPS cleaner - handles text patterns and scale conversions"""
         if 'NPS' not in df.columns:
             return df
-        
-        initial_count = len(df)
-        
-        # Ensure NPS scores are in valid range (0-10)
-        df['NPS'] = df['NPS'].apply(lambda x: x if pd.isna(x) or (0 <= x <= 10) else np.nan)
-        
-        invalid_nps = df['NPS'].isna().sum()
-        if invalid_nps > 0:
-            logger.info(f"Found {invalid_nps} invalid NPS scores (outside 0-10 range)")
-        
+
+        def smart_nps_parse(value):
+            """Intelligent NPS parsing from various text formats"""
+            if pd.isna(value):
+                return np.nan
+
+            # If already numeric and valid
+            if isinstance(value, (int, float)) and 0 <= value <= 10:
+                return float(value)
+
+            # Try to extract number from text
+            if isinstance(value, str):
+                import re
+                value_clean = value.strip().lower()
+
+                # Common text patterns: "NPS: 8", "8/10", "Score 9", etc.
+                number_patterns = [
+                    r'\b([0-9]|10)\b',  # Simple numbers 0-10
+                    r'nps[:\s]*([0-9]|10)',  # "NPS: 8" or "nps 9"
+                    r'score[:\s]*([0-9]|10)',  # "Score: 7"
+                    r'rating[:\s]*([0-9]|10)'  # "Rating: 6"
+                ]
+
+                for pattern in number_patterns:
+                    matches = re.findall(pattern, value_clean)
+                    if matches:
+                        try:
+                            num = int(matches[0])
+                            if 0 <= num <= 10:
+                                logger.debug(f"Parsed NPS {num} from text: '{value}'")
+                                return float(num)
+                        except ValueError:
+                            continue
+
+                # Scale conversion patterns
+                scale_conversions = [
+                    (r'(\d+)/10', lambda x: float(x)),  # "8/10" → 8
+                    (r'(\d+)%', lambda x: min(10.0, float(x) / 10)),  # "80%" → 8
+                    (r'(\d+)/5', lambda x: min(10.0, float(x) * 2)),  # "4/5" → 8
+                    (r'(\d+)/100', lambda x: min(10.0, float(x) / 10))  # "80/100" → 8
+                ]
+
+                for pattern, converter in scale_conversions:
+                    match = re.search(pattern, value_clean)
+                    if match:
+                        try:
+                            converted = converter(match.group(1))
+                            if 0 <= converted <= 10:
+                                logger.debug(f"Converted NPS {converted} from scale: '{value}'")
+                                return converted
+                        except (ValueError, ZeroDivisionError):
+                            continue
+
+                # Text sentiment mapping (last resort)
+                positive_texts = ['excelente', 'muy bueno', 'genial', 'perfecto', 'increible']
+                negative_texts = ['malo', 'terrible', 'horrible', 'pesimo', 'odio']
+
+                if any(word in value_clean for word in positive_texts):
+                    logger.debug(f"Inferred high NPS from positive text: '{value}'")
+                    return 9.0  # Promoter range
+                elif any(word in value_clean for word in negative_texts):
+                    logger.debug(f"Inferred low NPS from negative text: '{value}'")
+                    return 3.0  # Detractor range
+
+            # Mark for post-AI inference if no pattern matched
+            logger.debug(f"NPS value '{value}' marked for post-AI inference")
+            return np.nan
+
+        # Apply smart parsing
+        original_nps = df['NPS'].copy()
+        df['NPS'] = df['NPS'].apply(smart_nps_parse)
+
+        # Log parsing results
+        parsed_count = df['NPS'].notna().sum()
+        total_count = len(df)
+        missing_count = total_count - parsed_count
+        original_valid = original_nps.notna().sum()
+
+        logger.info(f"Smart NPS parsing: {parsed_count}/{total_count} values parsed")
+        logger.info(f"Improved from {original_valid} to {parsed_count} valid NPS values")
+        if missing_count > 0:
+            logger.info(f"{missing_count} NPS values marked for post-AI inference")
+
         return df
     
     def _clean_ratings(self, df: pd.DataFrame) -> pd.DataFrame:
