@@ -13,8 +13,8 @@ from typing import Dict, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import controller layer (no direct core imports)
-from controller import PipelineController
+# Import controller layer (no direct core imports) - USE SYNC VERSION
+from controller.sync_controller import SynchronousPipelineController as PipelineController
 from config import FEATURE_FLAGS, get_openai_api_key
 from utils.logging_helpers import get_logger
 
@@ -172,34 +172,37 @@ def render_analysis_section(controller: PipelineController):
     
     # Run analysis button
     if st.button("🚀 Iniciar Análisis", use_container_width=True, type="primary"):
-        run_analysis_async(controller, use_mock, show_progress)
+        run_analysis_sync(controller, use_mock, show_progress)
 
-def run_analysis_async(controller: PipelineController, use_mock: bool, show_progress: bool):
-    """Execute analysis and redirect to results page - minimal trigger logic"""
+def run_analysis_sync(controller: PipelineController, use_mock: bool, show_progress: bool):
+    """Execute analysis synchronously with real-time UI updates - Streamlit-native"""
     try:
         file_info = controller.state_manager.get_uploaded_file()
         if not file_info:
             st.error("No hay archivo cargado")
             return
 
-        # Start async analysis through controller
-        controller.run_pipeline_async(
-            file_path=file_info['temp_path']
-        )
+        # Execute pipeline synchronously with real-time progress
+        st.info("🚀 Ejecutando análisis con feedback en tiempo real...")
 
-        # Show immediate feedback
-        st.success("✅ Análisis iniciado correctamente")
+        # Run synchronous pipeline (will show progress indicators)
+        results = controller.run_pipeline(file_path=file_info['temp_path'])
 
-        # Brief pause to ensure pipeline starts
-        time.sleep(1)
+        if results and results.get('processing_complete'):
+            st.success("🎉 ¡Análisis completado exitosamente!")
 
-        # Redirect to results page where polling will handle progress
-        st.info("🔄 Redirigiendo a página de resultados...")
-        st.switch_page("pages/3_📊_Resultados.py")
+            # Brief pause to show success
+            time.sleep(1)
+
+            # Navigate to results page
+            st.info("🔄 Navegando a resultados...")
+            st.switch_page("pages/3_📊_Resultados.py")
+        else:
+            st.error("El análisis no se completó correctamente")
 
     except Exception as e:
-        st.error(f"Error al iniciar análisis: {str(e)}")
-        logger.error(f"Analysis start error: {e}")
+        st.error(f"Error durante el análisis: {str(e)}")
+        logger.error(f"Synchronous analysis error: {e}", exc_info=True)
 
 # Results section removed - now handled by dedicated 3_📊_Resultados.py page
 # This maintains clean separation between upload/trigger (page 2) and display/export (page 3)

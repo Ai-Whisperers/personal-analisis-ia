@@ -10,7 +10,7 @@ from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import logging
 
-from .api_call import LLMApiClient
+from .api_client_core import LLMApiClient
 from .emotion_module import EmotionAnalyzer
 from .pain_points_module import PainPointsAnalyzer
 from .churn_module import ChurnAnalyzer
@@ -97,7 +97,7 @@ class EngineController:
         # Update DataFrame with inferred NPS values
         df['NPS'] = inferred_nps
         df['NPS_was_inferred'] = [
-            orig is None or (isinstance(orig, float) and np.isnan(orig))
+            orig is None or (isinstance(orig, float) and pd.isna(orig))
             for orig in original_nps
         ]
 
@@ -129,8 +129,14 @@ class EngineController:
             nps_categories.append(category)
 
         # Format using the new results formatter
-        from core.data_transform.results_formatter import format_ai_results_for_charts
-        final_df = format_ai_results_for_charts(df, results, nps_categories)
+        try:
+            from core.data_transform.results_formatter import ResultsFormatter
+            formatter = ResultsFormatter()
+            final_df = formatter.format_for_charts_and_export(df, results, nps_categories)
+        except ImportError as e:
+            logger.error(f"Results formatter import failed: {e}")
+            # Fallback: use original merge method
+            final_df = self._merge_results(df, results)
 
         format_time = time.time() - format_start
         logger.info(f"Results formatting completed in {format_time:.2f}s")

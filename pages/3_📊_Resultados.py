@@ -14,8 +14,8 @@ from typing import Dict, Any
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Import controller layer only (no direct core imports)
-from controller import PipelineController
+# Import controller layer only (no direct core imports) - USE SYNC VERSION
+from controller.sync_controller import SynchronousPipelineController as PipelineController
 from config import APP_INFO, FEATURE_FLAGS
 from utils.logging_helpers import get_logger
 
@@ -85,56 +85,23 @@ def render_no_results():
             st.switch_page("pages/2_Subir.py")
 
 def render_analysis_progress(controller: PipelineController):
-    """Render progress while analysis is running"""
-    st.info("⚡ Análisis en progreso...")
+    """Render progress - not needed with synchronous processing"""
+    # With synchronous processing, this should rarely be called
+    # Analysis happens in real-time on page 2 before redirect
 
-    # Get current status from controller
-    status = controller.get_pipeline_status()
+    st.info("🔄 Preparando resultados...")
 
-    # Show progress information
-    col1, col2, col3 = st.columns(3)
-
-    with col1:
-        st.metric("Estado", status.get('current_stage', 'Procesando'))
-
-    with col2:
-        duration = status.get('duration_seconds', 0)
-        st.metric("Tiempo transcurrido", f"{duration:.1f}s")
-
-    with col3:
-        # Show estimated progress (could be enhanced with real batch progress)
-        progress = min(0.9, duration / 10.0) if duration < 10 else 0.9
-        st.metric("Progreso estimado", f"{progress*100:.0f}%")
-
-    # Progress bar
-    st.progress(progress, text="Procesando comentarios...")
-
-    # Status details
-    if status.get('error_message'):
-        st.error(f"Error: {status['error_message']}")
-        if st.button("🔄 Reintentar", type="primary"):
-            controller.state_manager.clear_error()
-            st.switch_page("pages/2_Subir.py")
-    else:
-        st.markdown("""
-        **En proceso:**
-        - ✅ Archivo cargado y validado
-        - ⚡ Análisis de emociones con IA
-        - ⏳ Generación de insights y charts
-        - ⏳ Preparación de resultados
-        """)
-
-        # Auto-refresh every few seconds
-        time.sleep(2)
+    # Simple check if pipeline just finished
+    if controller.state_manager.is_analysis_complete():
+        st.success("✅ Análisis completado - Cargando resultados...")
+        time.sleep(1)
         st.rerun()
+    else:
+        # Redirect back to upload page if no analysis is running
+        st.warning("No se encontró análisis en progreso")
 
-    # Cancel option
-    if st.button("❌ Cancelar Análisis"):
-        if controller.cancel_pipeline():
-            st.success("Análisis cancelado")
+        if st.button("🔙 Volver a Subir", type="primary"):
             st.switch_page("pages/2_Subir.py")
-        else:
-            st.error("No se pudo cancelar el análisis")
 
 def render_complete_results(results: Dict[str, Any]):
     """Render complete analysis results using existing UI components"""
