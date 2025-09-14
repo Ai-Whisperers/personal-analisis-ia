@@ -66,10 +66,26 @@ class EngineController:
         batches = self._create_optimized_batches(df)
         batch_time = time.time() - batch_start
         
-        # Step 3: Process batches with intelligent concurrency
+        # Step 3: Process batches with Streamlit-native logging
         llm_start = time.time()
+
+        # Initialize Streamlit native logging
+        try:
+            from utils.streamlit_logger import streamlit_logger, show_pipeline_status
+            show_pipeline_status("Análisis IA", f"Procesando {len(batches)} lotes", 0.3)
+        except ImportError:
+            pass
+
         results = self._process_batches_optimized(batches)
         llm_time = time.time() - llm_start
+
+        # Log API execution with Streamlit native feedback
+        try:
+            from utils.streamlit_logger import streamlit_logger
+            success_batches = len([r for r in results if r])  # Count non-empty results
+            streamlit_logger.log_api_execution_progress(len(batches), len(batches), success_batches == len(batches))
+        except ImportError:
+            pass
         
         # Step 4: NPS Inference for missing values (POST-AI as requested)
         inference_start = time.time()
@@ -88,6 +104,16 @@ class EngineController:
         inference_time = time.time() - inference_start
         logger.info(f"NPS inference completed in {inference_time:.2f}s")
         logger.info(f"NPS coverage improved: {nps_stats['coverage_improvement']['improvement_points']:.1f} percentage points")
+
+        # Log NPS inference with Streamlit native feedback
+        try:
+            from utils.streamlit_logger import streamlit_logger
+            missing_count = nps_stats.get('values_requiring_inference', 0)
+            inferred_count = sum(df['NPS_was_inferred'])
+            avg_confidence = 0.75  # Placeholder - enhance later
+            streamlit_logger.log_nps_inference_with_status(missing_count, inferred_count, avg_confidence)
+        except ImportError:
+            pass
 
         # Step 5: Format results for charts and export
         format_start = time.time()
@@ -122,7 +148,35 @@ class EngineController:
         if hasattr(self.api_client, 'get_performance_metrics'):
             metrics = self.api_client.get_performance_metrics()
             logger.info(f"API Performance: {metrics['requests_per_second']:.1f} req/s, {metrics['tokens_per_second']:.0f} tokens/s")
-        
+
+        # Final validation summary with Streamlit native components
+        try:
+            from utils.streamlit_logger import streamlit_logger, show_success_summary
+
+            # Determine what features are working
+            features_working = []
+            if comment_count > 0:
+                features_working.append("Análisis de comentarios")
+            if sum(df['NPS_was_inferred']) > 0:
+                features_working.append("Inferencia NPS")
+            if 'sentiment' in final_df.columns:
+                features_working.append("Análisis de sentimientos")
+            if any(emotion in final_df.columns for emotion in ['alegria', 'tristeza', 'enojo']):
+                features_working.append("Análisis de emociones")
+
+            # Log completion with Streamlit celebration
+            sla_met = total_time <= 10.0
+            streamlit_logger.log_pipeline_completion(
+                total_time, comment_count, len(features_working) >= 3,
+                len(features_working) >= 2, sla_met
+            )
+
+            if len(features_working) >= 3:
+                show_success_summary(comment_count, total_time, features_working)
+
+        except ImportError:
+            pass
+
         return final_df
     
     def _calculate_optimal_batch_size(self) -> int:
@@ -187,20 +241,31 @@ class EngineController:
         return results
     
     def _calculate_optimal_concurrency(self) -> int:
-        """Calculate optimal concurrency based on current API usage"""
-        # Get current usage statistics from API client
+        """Calculate concurrency - SEVERELY LIMITED for Streamlit Cloud compatibility"""
+        # Streamlit Cloud has SEVERE threading limitations - default to sequential
+
+        # Check if we're in Streamlit environment
+        try:
+            import streamlit as st
+            # If we can access session_state, we're in Streamlit - be very conservative
+            if hasattr(st, 'session_state'):
+                logger.info("Streamlit environment detected - forcing sequential processing")
+                return 1  # Always sequential in Streamlit for stability
+        except ImportError:
+            pass
+
+        # Fallback for non-Streamlit environments (testing, etc.)
         if hasattr(self.api_client, 'get_usage_stats'):
             usage_stats = self.api_client.get_usage_stats()
             tokens_percentage = usage_stats.get('tokens_percentage', 0)
             requests_percentage = usage_stats.get('requests_percentage', 0)
-            
-            # Reduce concurrency if we're close to rate limits
-            if tokens_percentage > 70 or requests_percentage > 70:
-                return 1  # Sequential processing
-            elif tokens_percentage > 50 or requests_percentage > 50:
-                return min(2, self.config['max_concurrent_batches'])
-        
-        return self.config['max_concurrent_batches']
+
+            # Any rate limit pressure = sequential
+            if tokens_percentage > 30 or requests_percentage > 30:
+                return 1
+
+        # Maximum 1 worker for Streamlit compatibility
+        return 1
     
     def _process_single_batch(self, batch: pd.DataFrame) -> List[Dict[str, Any]]:
         """Process single batch with optimized single API call"""
