@@ -363,7 +363,6 @@ APP_INFO = {
 
 # Feature flags
 FEATURE_FLAGS = {
-    "enable_mock_mode": True,           # Allow running without API key
     "enable_advanced_charts": True,    # Heatmaps, advanced visualizations
     "enable_export": True,             # File export functionality
     "enable_performance_monitoring": True,  # Performance tracking
@@ -379,11 +378,8 @@ FEATURE_FLAGS = {
 # ============================================================================
 
 def is_mock_mode() -> bool:
-    """Check if running in mock mode (no API key or mock key)"""
-    api_key = get_openai_api_key()
-    return (not api_key or 
-            api_key in ["", "your_openai_api_key_here", "mock", "test"] or 
-            not FEATURE_FLAGS.get("enable_mock_mode", True))
+    """Mock mode completely eliminated for production reliability"""
+    return False  # Always false - no more mock mode
 
 def get_app_config() -> Dict[str, Any]:
     """Get complete application configuration"""

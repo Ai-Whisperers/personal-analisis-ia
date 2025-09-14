@@ -170,10 +170,7 @@ def main():
         if api_key:
             st.success("🔑 **API**: Configurada y lista")
         else:
-            if FEATURE_FLAGS.get('enable_mock_mode', True):
-                st.info("🎮 **API**: Modo demo disponible")
-            else:
-                st.error("⚠️ **API**: Configuración requerida")
+            st.error("⚠️ **API**: Configuración requerida para funcionamiento")
     
     with status_col2:
         uploaded_file = state_manager.get_uploaded_file()

@@ -39,10 +39,7 @@ class PipelineController(IPipelineRunner):
         
         # Initialize core components
         api_key = get_openai_api_key()
-        self.api_client = LLMApiClient(
-            api_key=api_key,
-            mock_mode=is_mock_mode()
-        )
+        self.api_client = LLMApiClient(api_key=api_key)
         
         # Get batch configuration from config
         try:

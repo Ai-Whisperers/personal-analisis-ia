@@ -121,10 +121,7 @@ def render_system_status():
         if api_key:
             st.success("🔑 API Key: Configurada")
         else:
-            if FEATURE_FLAGS.get('enable_mock_mode', True):
-                st.info("🔑 Modo Demo Activo")
-            else:
-                st.error("🔑 API Key: No configurada")
+            st.error("🔑 API Key: Requerida para funcionamiento")
     
     with col2:
         # Controller status

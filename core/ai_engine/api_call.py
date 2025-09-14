@@ -30,11 +30,13 @@ except ImportError:
 class LLMApiClient:
     """Optimized OpenAI API client for high-throughput batch processing"""
     
-    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None, mock_mode: bool = False):
+    def __init__(self, api_key: Optional[str] = None, model: Optional[str] = None):
+        if not api_key:
+            raise ValueError("OpenAI API key is required. Mock mode has been eliminated.")
+
         self.api_key = api_key
         self.model = model or DEFAULT_MODEL
-        self.mock_mode = mock_mode
-        self.client = OpenAI(api_key=api_key) if api_key and not mock_mode else None
+        self.client = OpenAI(api_key=api_key)
         self.prompt_templates = PromptTemplates()
         self.max_retries = 3  # Reduced to 3 for faster failure recovery
         self.retry_delay = 0.5  # Shorter base delay
@@ -72,9 +74,8 @@ class LLMApiClient:
         if not comments:
             return []
         
-        if not self.client or not self.api_key or self.mock_mode:
-            logger.warning("No API key provided or mock mode enabled, using mock responses")
-            return [self._get_mock_response(comment) for comment in comments]
+        if not self.client or not self.api_key:
+            raise ValueError("OpenAI API key is required. Mock mode has been eliminated for production reliability.")
         
         start_time = time.time()
         
