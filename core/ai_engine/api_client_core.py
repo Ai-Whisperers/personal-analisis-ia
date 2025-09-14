@@ -34,6 +34,10 @@ class LLMApiClient:
         if not api_key:
             raise ValueError("OpenAI API key is required. Mock mode has been eliminated.")
 
+        # Validate API key format
+        if not self._validate_api_key_format(api_key):
+            raise ValueError("Invalid OpenAI API key format. Must start with 'sk-' and be at least 40 characters.")
+
         self.api_key = api_key
         self.model = model or DEFAULT_MODEL
         self.client = OpenAI(api_key=api_key)
@@ -240,3 +244,32 @@ class LLMApiClient:
             return self.batch_processor.get_batch_size_recommendation()
         else:
             return 30  # Safe default
+
+    def _validate_api_key_format(self, api_key: str) -> bool:
+        """Validate OpenAI API key format"""
+        if not api_key or not isinstance(api_key, str):
+            return False
+
+        # Basic format validation
+        if not api_key.startswith('sk-'):
+            return False
+
+        # Length validation (OpenAI keys are typically 51+ characters)
+        if len(api_key) < 40:
+            return False
+
+        # Check for placeholder values
+        placeholder_patterns = [
+            'your-openai-api-key-here',
+            'your-api-key',
+            'placeholder',
+            'sk-test',
+            'sk-fake'
+        ]
+
+        api_key_lower = api_key.lower()
+        for pattern in placeholder_patterns:
+            if pattern in api_key_lower:
+                return False
+
+        return True

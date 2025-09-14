@@ -374,3 +374,40 @@ class OptimizedStateManager(IStateManager):
         except Exception as e:
             logger.error(f"Error optimizing memory: {e}")
             return False
+
+    def clear_state(self) -> None:
+        """Clear all stored state - required by IStateManager interface"""
+        self.clear_all_state()
+
+    def get_state_summary(self) -> Dict[str, Any]:
+        """Get summary of current state for debugging - required by IStateManager interface"""
+        try:
+            summary = {
+                'session_state_keys': list(st.session_state.keys()) if 'st' in globals() else [],
+                'pipeline_running': self.is_pipeline_running(),
+                'analysis_complete': self.is_analysis_complete(),
+                'has_uploaded_file': self.get_uploaded_file() is not None,
+                'has_analysis_results': self.get_analysis_results() is not None,
+                'current_stage': self.get_current_stage(),
+                'error_message': self.get_error_message(),
+                'state_version': st.session_state.get('state_version', 0) if 'st' in globals() else 0,
+                'memory_info': self.get_memory_usage_info()
+            }
+
+            # Add pagination info if available
+            if self.is_analysis_complete():
+                results = self.get_analysis_results()
+                if results and 'pagination_info' in results:
+                    summary['pagination_info'] = results['pagination_info']
+
+            return summary
+
+        except Exception as e:
+            logger.error(f"Error getting state summary: {e}")
+            return {
+                'error': str(e),
+                'basic_info': {
+                    'pipeline_running': False,
+                    'analysis_complete': False
+                }
+            }

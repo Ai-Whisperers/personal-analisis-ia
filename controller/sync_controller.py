@@ -343,6 +343,19 @@ class SynchronousPipelineController(IPipelineRunner):
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
 
+    def cancel_pipeline(self) -> bool:
+        """Cancel running pipeline if possible - required by IPipelineRunner interface"""
+        try:
+            if self.state_manager.is_pipeline_running():
+                self.state_manager.set_error_message("Pipeline cancelled by user")
+                self.state_manager.set_pipeline_running(False)
+                logger.info("Pipeline cancelled by user request")
+                return True
+            return False
+        except Exception as e:
+            logger.error(f"Error cancelling pipeline: {e}")
+            return False
+
     def __del__(self):
         """Destructor to ensure cleanup"""
         try:

@@ -78,17 +78,21 @@ class UsageMonitor:
         """Get usage for the current minute window"""
         current_time = time.time()
         minute_start = current_time - 60  # Last 60 seconds
-        
+
         recent_metrics = [m for m in self.metrics_history if m.timestamp > minute_start]
-        
+
         total_requests = sum(m.requests_made for m in recent_metrics)
         total_tokens = sum(m.tokens_used for m in recent_metrics)
-        
+
         return {
             'requests': total_requests,
             'tokens': total_tokens,
             'batch_count': len(recent_metrics)
         }
+
+    def get_current_usage(self) -> Dict[str, int]:
+        """Alias for get_current_minute_usage for backward compatibility"""
+        return self.get_current_minute_usage()
     
     def get_session_summary(self) -> Dict[str, Any]:
         """Get summary of the entire session"""
