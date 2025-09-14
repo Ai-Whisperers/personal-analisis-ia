@@ -438,6 +438,6 @@ def validate_config() -> tuple[bool, str]:
     except Exception as e:
         return False, f"Unexpected configuration error: {e}"
 
-# Validate configuration on import
-if __name__ != "__main__":
-    validate_config()
+# Configuration validation should be called explicitly during app startup
+# Removed automatic validation on import to prevent startup issues
+# Call validate_config() explicitly in streamlit_app.py main()

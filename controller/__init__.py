@@ -4,14 +4,17 @@ Controller Package - Pipeline Orchestration Layer
 Isolates UI from core logic following blueprint architecture
 """
 
-from .controller import PipelineController
+# Import existing implementations
+from .sync_controller import SynchronousPipelineController as PipelineController
+from .optimized_state_manager import OptimizedStateManager as StreamlitStateManager
 from .interfaces import IPipelineRunner, IStateManager, IProgressTracker
-from .state_manager import StreamlitStateManager
-from .background_runner import BackgroundPipelineRunner
+
+# Legacy alias for backward compatibility
+BackgroundPipelineRunner = PipelineController
 
 __all__ = [
     'PipelineController',
-    'IPipelineRunner', 
+    'IPipelineRunner',
     'IStateManager',
     'IProgressTracker',
     'StreamlitStateManager',

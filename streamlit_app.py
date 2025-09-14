@@ -11,7 +11,7 @@ from pathlib import Path
 # Configure Streamlit page FIRST
 st.set_page_config(
     page_title="Personal Comment Analyzer",
-    page_icon="📊",
+    page_icon="🎭",
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
@@ -62,88 +62,87 @@ def main():
 
 def render_app_header():
     """Render application header"""
-    st.title(f"📊 {APP_INFO['name']}")
+    st.title(f"{APP_INFO['name']}")
     st.markdown(f"*{APP_INFO['description']}*")
     st.markdown(f"**Versión:** {APP_INFO['version']}")
 
 def render_navigation_section():
     """Render navigation instructions and quick access"""
     st.markdown("---")
-    st.markdown("## 📋 Cómo usar la aplicación:")
+    st.markdown("## Como usar la aplicación:")
     st.markdown("""
-    1. **📂 Landing Page**: Ve a **1_Landing_Page** para información del sistema
-    2. **📤 Subir Archivo**: Usa **2_Subir** para cargar Excel y ejecutar análisis  
-    3. **📊 Resultados**: Los gráficos aparecen automáticamente después del análisis
-    
-    **📋 Formato requerido:** Excel con columnas `NPS`, `Nota`, `Comentario Final`
+    1. **Landing Page**: Ve a **1_Landing_Page** para información del sistema
+    2. **Subir Archivo**: Usa **2_Subir** para cargar Excel y ejecutar análisis
+    3. **Resultados**: Los gráficos aparecen automáticamente después del análisis
+
+    **Formato requerido:** Excel con columnas `NPS`, `Nota`, `Comentario Final`
     """)
-    
+
     # Quick access buttons
-    st.markdown("### 🚀 Acceso Rápido:")
+    st.markdown("### Acceso Rápido:")
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
-        if st.button("📂 Landing Page", use_container_width=True):
+        if st.button("Landing Page", use_container_width=True):
             st.switch_page("pages/1_Landing_Page.py")
-    
+
     with col2:
-        if st.button("📤 Subir y Analizar", use_container_width=True, type="primary"):
+        if st.button("Subir y Analizar", use_container_width=True, type="primary"):
             st.switch_page("pages/2_Subir.py")
-    
+
     with col3:
-        if st.button("📊 Ver Resultados", use_container_width=True):
+        if st.button("Ver Resultados", use_container_width=True):
             # Check if there are any results to show
-            if 'analysis_results' in st.session_state:
-                st.switch_page("pages/3_📊_Resultados.py")
+            if 'analysis_results' in st.session_state or 'paginated_results' in st.session_state:
+                st.switch_page("pages/3_Resultados.py")
             else:
                 st.info("No hay resultados disponibles. Ejecuta un análisis primero.")
-                time.sleep(2)
                 st.switch_page("pages/2_Subir.py")
 
 def show_documentation_modal():
     """Show documentation in expandable section"""
-    with st.expander("📚 Documentación", expanded=True):
+    with st.expander("Documentación", expanded=True):
         st.markdown("""
-        ### 🎭 16 Emociones
+        ### 16 Emociones
         **Positivas:** alegría, confianza, expectativa, gratitud, aprecio, entusiasmo, esperanza
-        **Negativas:** tristeza, enojo, miedo, desagrado, frustración, decepción, vergüenza  
+        **Negativas:** tristeza, enojo, miedo, desagrado, frustración, decepción, vergüenza
         **Neutras:** sorpresa, indiferencia
-        
-        ### 📊 Análisis: NPS, Churn, Pain Points, Exportación
-        ### ⚡ SLA: ≤10s para 800-1200 comentarios
+
+        ### Análisis: NPS, Churn, Pain Points, Exportación
+        ### SLA: ≤10s para 800-1200 comentarios
         """)
 
 def render_system_status():
     """Render system status indicators"""
     st.markdown("---")
-    st.markdown("### 🔍 Estado del Sistema:")
-    
+    st.markdown("### Estado del Sistema:")
+
     col1, col2, col3 = st.columns(3)
-    
+
     with col1:
         # API key status
         from config import get_openai_api_key
         api_key = get_openai_api_key()
-        
+
         if api_key:
-            st.success("🔑 API Key: Configurada")
+            st.success("API Key: Configurada")
         else:
-            st.error("🔑 API Key: Requerida para funcionamiento")
-    
+            st.error("API Key: Requerida para funcionamiento")
+
     with col2:
         # Controller status
         try:
             from controller import PipelineController
-            st.success("🎛️ Controller: Disponible")
+            st.success("Controller: Disponible")
         except ImportError:
-            st.error("🎛️ Controller: Error")
-    
+            st.error("Controller: Error")
+
     with col3:
         # Configuration status
         if FEATURE_FLAGS:
-            st.success("⚙️ Config: Válida")
+            st.success("Config: Válida")
         else:
-            st.warning("⚙️ Config: Limitada")
+            st.warning("Config: Limitada")
 
 def render_footer():
     """Render application footer"""
